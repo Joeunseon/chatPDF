@@ -5,6 +5,9 @@
     <!-- 로그 레벨 -->
     <property name="LOG_LEVEL" value="${logging.level.root:INFO}" />
 
+    <!-- 패턴 색상 적용 %clr(pattern){color} -->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+
     <!-- Console Appender -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
