@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="layout/layout">
+<body>
+    <!-- warp -->
+    <div class="warp">
+        <!-- container-block -->
+        <div id="container-block" layout:fragment="contents" th:remove="tag">
+            <!-- container -->
+            <div class="container" id="__next">
+                <div data-panel-group-direction="horizontal" data-panel-group-id=":r0:" style="display: flex; flex-direction: row; height: 931px; overflow: hidden; width: 100vw;">
+                    <!-- 좌측 file-upload -->
+                    <div data-panel-id=":r1:" data-panel-size="21.0" id="data-panel-id-:r1:" style="flex: 21 1 0px; overflow: hidden;">
+                        <div class="sider" style="overflow: auto; height: 931px; display: flex; flex-direction: column; background-color: rgb(0, 21, 41);">
+                            <div class="sider-upload translate" style="height: 64px; margin: 8px; background: rgba(255, 255, 255, 0.2); flex-shrink: 0;">
+                                <span class="ant-upload-wrapper css-w8mnev">
+                                    <div class="ant-upload ant-upload-drag css-w8mnev" style="padding: 0px;">
+                                        <span tabindex="0" class="ant-upload ant-upload-btn" role="button">
+                                            <input type="file" accept=".pdf" style="display: none;" id="inputFile">
+                                            <div class="ant-upload-drag-container">
+                                                <span role="img" aria-label="plus" class="anticon anticon-plus">
+                                                    <svg viewBox="64 64 896 896" focusable="false" data-icon="plus" width="1em" height="1em" fill="currentColor" aria-hidden="true">
+                                                        <defs> <style> </style> </defs>
+                                                        <path d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"> </path>
+                                                        <path d="M176 474h672q8 0 8 8v60q0 8-8 8H176q-8 0-8-8v-60q0-8 8-8z"> </path>
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                        </span>
+                                    </div>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ./ 좌측 file-upload -->
+
+                    <!-- 간격 -->
+                    <div data-panel-group-direction="horizontal" data-panel-group-id=":r0:" data-panel-resize-handle-enabled="true" data-panel-resize-handle-id=":r4:" role="separator" tabindex="0" aria-valuemax="64" aria-valuemin="15" aria-valuenow="21" aria-controls="data-panel-id-:r1:" style="cursor: ew-resize; touch-action: none; user-select: none;">
+                        <div style="background: rgb(238, 238, 238); width: 4px; height: 100%;"></div>
+                    </div>
+                    <!-- ./ 간격 -->
+
+                    <input type="hidden" id="sourceId" value="">
+
+                    <!-- 중간 pdf-viewer -->
+                    <div class="divMiddle" data-panel="" data-panel-id=":r5:" data-panel-size="39.0" id="data-panel-id-:r5:" style="flex: 39 1 0px; overflow: hidden; display: none;">
+                        <div class="pdf-viewer" style="display: flex; flex-direction: column; height: 100%;">
+                            <div class="toolbar" style="font-family: Roboto, system-ui, sans-serif; font-size: 13px; align-items: center; display: flex; padding: 0px 8px 0px 6px; height: 42px;">
+                                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" class="icon-button" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0; font-size: 22px; padding-top: 2px;">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M2 1L1 2V14L2 15H14L15 14V2L14 1H2ZM14 14H7V2H14V14Z"></path>
+                                </svg>
+                                <!-- 업로드 파일명 -->
+                                <h1 class="ant-typography notranslate css-w8mnev" style="font-size: 18px; margin-right: auto; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-left: 6px;">
+
+                                </h1>
+                            </div>
+                            <!-- viewr -->
+                            <div style="flex: 1 1 0%; overflow: hidden;">
+                                <div class="rpv-core__viewer rpv-core__viewer--light" data-testid="core__viewer" style="height: 100%; width: 100%;">
+                                    <div class="rpv-core__inner-container" data-testid="core__inner-container" style="height: 100%;">
+                                        <div data-testid="core__inner-pages" class="rpv-core__inner-pages rpv-core__inner-pages--vertical" style="height: 100%; position: relative;">
+                                            <!-- page 추가마다 height 변경 필요 -->
+                                            <div data-testid="core__inner-current-page-0" style="--scale-factor: 0.8319327731092437; position: relative; height: 1400px; width: 100%;" id="pdfContainer">
+                                                <!-- page -->
+                                                <div class="rpv-core__inner-page-container divPdf">
+                                                    <div aria-label="Page 1" class="rpv-core__inner-page" role="region" style="height: 699.655px; width: 100%; left: 0px; position: absolute; top: 0px; transform: translateY(0px);">
+                                                        <div class="rpv-core__page-layer rpv-core__page-layer--single" data-testid="core__page-layer-0" data-virtual-index="0" style="height: 699.655px; width: 495px;">
+                                                            <div style="padding: 20px;"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- ./ page -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- ./ viewer -->
+                        </div>
+                    </div>
+                    <!-- ./ 중간 pdf-viewer -->
+
+                    <!-- 간격 -->
+                    <div data-panel-group-direction="horizontal" data-panel-group-id=":r0:" data-panel-resize-handle-enabled="true" data-panel-resize-handle-id=":ra:" role="separator" tabindex="0" aria-valuemax="65" aria-valuemin="16" aria-valuenow="39" aria-controls="data-panel-id-:r5:" style="cursor: ew-resize; touch-action: none; user-select: none;">
+                        <div style="background: rgb(238, 238, 238); width: 4px; height: 100%;">
+                        </div>
+                    </div>
+                    <!-- ./ 간격 -->
+                    
+                    <!-- 우측 chatting -->
+                    <div class="divRight" data-panel="" data-panel-id=":rb:" data-panel-size="40.0" id="data-panel-id-:rb:" style="flex: 40 1 0px; overflow: hidden; display: none;">
+                        <div class="chat-container notranslate" style="background-color: rgb(255, 255, 255); display: flex; flex-direction: column; flex-grow: 1; max-width: 100%; height: 931px;">
+                            <div class="chat-header" style="height: 42px; padding: 0px 6px; background: rgb(255, 255, 255); display: flex; align-items: center; flex-shrink: 0;">
+                                <div class="mobile-only" style="font-size: 20px;">
+                                    <span role="img" aria-label="menu" tabindex="-1" class="anticon anticon-menu" style="cursor: pointer; color: rgb(153, 153, 153);">
+                                        <svg viewBox="64 64 896 896" focusable="false" data-icon="menu" width="1em" height="1em" fill="currentColor" aria-hidden="true">
+                                            <path d="M904 160H120c-4.4 0-8 3.6-8 8v64c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-64c0-4.4-3.6-8-8-8zm0 624H120c-4.4 0-8 3.6-8 8v64c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-64c0-4.4-3.6-8-8-8zm0-312H120c-4.4 0-8 3.6-8 8v64c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-64c0-4.4-3.6-8-8-8z">
+                                            </path>
+                                        </svg>
+                                    </span>
+                                </div>
+                                <!-- chat header -->
+                                <h1 class="ant-typography css-w8mnev" style="font-size: 18px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; margin: 0px; padding-left: 6px;">
+                                    Chat
+                                </h1>
+                            </div>
+                            <!-- chat main -->
+                            <div style="flex-grow: 1; overflow: auto; width: 100%; display: flex; justify-content: center;">
+                                <div style="width: 100%; max-width: 768px;">
+                                    <div class="ant-list ant-list-split chat-messages css-w8mnev" style="width: 100%; padding: 0px 12px; justify-self: center; overflow: auto;">
+                                        <div class="ant-spin-nested-loading css-w8mnev">
+                                            <div class="ant-spin-container">
+                                                <ul class="ant-list-items" id="chatUl">
+                                                    <div class="chat-message-row ai">
+                                                        <div class="chat-message" id="chatAi">
+                                                            <span class="spanAi">
+                                                                <br>
+                                                                <span role="img" aria-label="send" tabindex="-1" class="anticon anticon-send" style="cursor: pointer; color: rgb(23, 119, 255);" onclick="exAsk(this);">
+                                                                    <svg viewBox="64 64 896 896" focusable="false" data-icon="send" width="1em" height="1em" fill="currentColor" aria-hidden="true">
+                                                                        <defs>
+                                                                            <style></style>
+                                                                        </defs>
+                                                                        <path d="M931.4 498.9L94.9 79.5c-3.4-1.7-7.3-2.1-11-1.2a15.99 15.99 0 00-11.7 19.3l86.2 352.2c1.3 5.3 5.2 9.6 10.4 11.3l147.7 50.7-147.6 50.7c-5.2 1.8-9.1 6-10.3 11.3L72.2 926.5c-.9 3.7-.5 7.6 1.2 10.9 3.9 7.9 13.5 11.1 21.5 7.2l836.5-417c3.1-1.5 5.6-4.1 7.2-7.1 3.9-8 .7-17.6-7.2-21.6zM170.8 826.3l50.3-205.6 295.2-101.3c2.3-.8 4.2-2.6 5-5 1.4-4.2-.8-8.7-5-10.2L221.1 403 171 198.2l628 314.9-628.2 313.2z">
+                                                                        </path>
+                                                                    </svg>
+                                                                </span>
+                                                                <span class="exAsk"></span>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="chat-message-row human divH">
+                                                        <div class="chat-message">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="chat-message-row ai divA">
+                                                        <div class="chat-message">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="chat-message-row ai divL">
+                                                        <div class="chat-message chat-loading" style="height: 50px; width: 50px;">
+                                                            <img src="./images/loading.gif" style="height: 50px; width: 50px;" />
+                                                        </div>
+                                                    </div>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- ./ chat main -->
+                            <!-- chat 입력 -->
+                            <div style="display: flex; justify-content: center;">
+                                <div class="ant-space-compact css-w8mnev chat-input" style="margin: 12px 0px 16px; padding: 0px 12px; max-width: 768px; display: flex; flex-shrink: 0; flex-grow: 1; align-self: center;">
+                                    <textarea placeholder="Ask any question…" class="ant-input css-w8mnev" style="border-top-right-radius: 0px; border-bottom-right-radius: 0px; border-right: none; overflow-y: hidden; resize: none; height: 32px; min-height: 32px; max-height: 230px;">
+                                    </textarea>
+                                    <button type="button" class="ant-btn css-w8mnev ant-btn-primary ant-btn-compact-item ant-btn-compact-last-item" style="width: 52px;" onclick="askAi();">
+                                        <span role="img" aria-label="send" class="anticon anticon-send">
+	        			                    <svg viewBox="64 64 896 896" focusable="false" data-icon="send" width="1em" height="1em" fill="currentColor" aria-hidden="true">
+                                                <defs> 
+                                                    <style></style> 
+                                                </defs> 
+                                                <path d="M931.4 498.9L94.9 79.5c-3.4-1.7-7.3-2.1-11-1.2a15.99 15.99 0 00-11.7 19.3l86.2 352.2c1.3 5.3 5.2 9.6 10.4 11.3l147.7 50.7-147.6 50.7c-5.2 1.8-9.1 6-10.3 11.3L72.2 926.5c-.9 3.7-.5 7.6 1.2 10.9 3.9 7.9 13.5 11.1 21.5 7.2l836.5-417c3.1-1.5 5.6-4.1 7.2-7.1 3.9-8 .7-17.6-7.2-21.6zM170.8 826.3l50.3-205.6 295.2-101.3c2.3-.8 4.2-2.6 5-5 1.4-4.2-.8-8.7-5-10.2L221.1 403 171 198.2l628 314.9-628.2 313.2z"> 
+                                                </path> 
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- ./ chat 입력 -->
+                        </div>
+                    </div>
+                    <!-- ./ 우측 chatting -->
+                </div>
+            </div>
+
+            <!-- 로딩 -->
+            <div id="loadingDiv" style="display: none;">
+                <img id="loading-img" src="./images/loading.gif" alt="Loading..." />
+            </div>
+            <!-- ./ container -->
+        </div>
+        <!-- ./ container-block -->
+    </div>
+    <!-- ./ warp -->
+</body>
+</html>
