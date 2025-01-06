@@ -87,7 +87,7 @@ function uploadFile(fileObject) {
         // 전체 화면 로딩 
         $('#loadingDiv').show();
         // 파일 뷰어
-        //renderPDF(fileObject[0]);
+        renderPDF(fileObject[0]);
         // 파일 업로드
         fileUpload();
     } else {
@@ -294,4 +294,71 @@ function chatLoading() {
     // 로딩 
     let divLClone = elements.divLDetach.clone();
     $('#chatUl').append(divLClone);
+}
+
+// pdf 뷰어
+function renderPDF(file) {
+    let fileReader = new FileReader();
+
+    fileReader.onload = function(e) {
+        let arrayBuffer = e.target.result;
+
+        // PDF.js 설정
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js";
+
+        // PDF 파일 로드
+        pdfjsLib.getDocument({ data: arrayBuffer }).promise.then(function(pdf) {
+            // 총 페이지 수 가져오기
+            let totalPages = pdf.numPages;
+            let heightTotal = 0;
+
+            // 모든 페이지 렌더링
+            for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
+                pdf.getPage(pageNumber).then(function(page) {
+                    // 페이지 처리
+                    let divPdfClone = elements.divPdfDetach.clone();
+                    
+                    // 페이지 설정
+                    let viewport = page.getViewport({ scale: 1 });
+                    heightTotal += viewport.height;
+                    
+                    let index = page._pageIndex;
+                    
+                    divPdfClone.find('.rpv-core__inner-page').attr('aria-label', "Page " + (page._pageIndex+1));
+                    divPdfClone.find('.rpv-core__inner-page').css('transform', 'translateY('+(viewport.height*index)+'px)');
+                    divPdfClone.find('.rpv-core__inner-page').css('height', viewport.height+'px');
+                    
+                    divPdfClone.find('.rpv-core__page-layer').attr('data-testid', 'core__page-layer-'+page._pageIndex);
+                    divPdfClone.find('.rpv-core__page-layer').attr('data-virtual-index', page._pageIndex);
+                    divPdfClone.find('.rpv-core__page-layer').css('height', viewport.height+'px');
+                    divPdfClone.find('.rpv-core__page-layer').css('width', viewport.width+'px');
+
+                    let pageContent = divPdfClone.find('.rpv-core__page-layer').find("div");
+
+                    // 페이지 내용 추가
+                    let canvas = document.createElement("canvas");
+                    pageContent.append(canvas);
+
+                    // 페이지 렌더링
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    let renderContext = {
+                        canvasContext: canvas.getContext("2d"),
+                        viewport: viewport
+                    };
+                    page.render(renderContext);
+
+                    // 페이지 컨테이너에 추가
+                    $('#pdfContainer').append(divPdfClone);
+                });
+            }
+
+            // 스크롤 설정
+            //$('#pdfContainer').css('height', (700*totalPages)+'px');
+            $('#pdfContainer').css('height', heightTotal+'px');
+        });
+    };
+
+    fileReader.readAsArrayBuffer(file);
 }
