@@ -13,6 +13,7 @@ const elements = {
 
 let maxRequestSize; // 서버로 보낼수있는 파일 최대 크기
 let maxFileSize;	// 단일 파일 최대 크기
+let messages = [];
 
 $(document).ready(function () {
 
@@ -87,7 +88,7 @@ function uploadFile(fileObject) {
         // 전체 화면 로딩 
         $('#loadingDiv').css('display', 'flex');
         // 파일 뷰어
-        renderPDF(fileObject[0]);
+        //renderPDF(fileObject[0]);
         // 파일 업로드
         fileUpload();
     } else {
@@ -109,12 +110,10 @@ function fileUpload() {
 
     fn_fetchPostData(url, formData)
         .then(data => {
-            let dataMap = data.dataMap;
-            if ( data.code == '200' ) {
-                $('#sourceid').val(dataMap.sourceId);
+            let sourceId = data.sourceId;
+            if ( sourceId != null && sourceId != '' ) {
+                $('#sourceid').val(sourceId);
                 flag = true;
-            } else {
-                alert(dataMap.message);
             }
         })
         .catch(fn_handleError);
@@ -125,4 +124,49 @@ function fileUpload() {
     } else {
         $('#loadingDiv').hide();
     }
+}
+
+// 요약과 질문 예시
+function firstAskAi() {
+    // 챗 화면 초기화
+    $('#chatUl').children(':first-child').nextAll().remove();
+    // 질문 입력란 초기화
+    $('.ant-input').val('');
+
+    // 메시지 초기화
+	messages = [];
+
+    let sourceId = $('#sourceId').val();
+
+    if ( sourceId == '' ) {
+        alert('처리 중 문제가 발생하였습니다.');
+        console.log('Error function : firstAskAi');
+        return;
+    }
+
+    let firstMsg = [];
+    let msg = {
+        "role": "user",
+        "content": '해당 파일 요약본이랑 질문 예시 좀 줘'
+    };
+    firstMsg.push(msg);
+
+    let params = {
+        "sourceId": sourceId,
+	  	"messages": firstMsg
+    };
+
+    // ChatPDF 답변 취득
+	getAnswer(params, 'first');
+}
+
+function getAnswer(params, type) {
+
+    const url = '/api/chat/ask';
+
+    fn_fetchPostData(url, JSON.stringify(params))
+        .then(data => {
+            console.log(data)
+        })
+        .catch(fn_handleError);
 }
