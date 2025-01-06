@@ -1,0 +1,14 @@
+{
+    "properties": [
+        {
+            "name": "chat.pdf.api.url",
+            "type": "java.lang.String",
+            "description": "chatPDF API base URL"
+        },
+        {
+            "name": "chat.pdf.api.key",
+            "type": "java.lang.String",
+            "description": "chatPDF API key"
+        }
+    ]
+}
