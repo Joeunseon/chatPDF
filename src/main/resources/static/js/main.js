@@ -13,7 +13,6 @@ const elements = {
 
 let maxRequestSize; // 서버로 보낼수있는 파일 최대 크기
 let maxFileSize;	// 단일 파일 최대 크기
-let messages = [];
 
 $(document).ready(function () {
 
@@ -86,7 +85,7 @@ function uploadFile(fileObject) {
         // 파일 뷰어 페이지 초기화
         $('#pdfContainer').empty();
         // 전체 화면 로딩 
-        $('#loadingDiv').css('display', 'flex');
+        $('#loadingDiv').show();
         // 파일 뷰어
         //renderPDF(fileObject[0]);
         // 파일 업로드
@@ -104,7 +103,6 @@ function fileUpload() {
     let formData = new FormData();
     let fileInput = document.querySelector('input[type="file"]');
     formData.append('file', fileInput.files[0]);
-    let flag = false;
 
     const url = '/api/file';
 
@@ -112,18 +110,21 @@ function fileUpload() {
         .then(data => {
             let sourceId = data.sourceId;
             if ( sourceId != null && sourceId != '' ) {
-                $('#sourceid').val(sourceId);
-                flag = true;
+                $('#sourceId').val(sourceId);
+                return true;
+            } 
+            return false;
+        })
+        .then ( flag => {
+            if ( flag ) {
+                // 요약과 질문 예시
+                firstAskAi();
+            } else {
+                $('#loadingDiv').hide();
             }
         })
         .catch(fn_handleError);
 
-    if ( flag ) {
-        // 요약과 질문 예시
-        firstAskAi();
-    } else {
-        $('#loadingDiv').hide();
-    }
 }
 
 // 요약과 질문 예시
@@ -133,9 +134,6 @@ function firstAskAi() {
     // 질문 입력란 초기화
     $('.ant-input').val('');
 
-    // 메시지 초기화
-	messages = [];
-
     let sourceId = $('#sourceId').val();
 
     if ( sourceId == '' ) {
@@ -144,29 +142,156 @@ function firstAskAi() {
         return;
     }
 
-    let firstMsg = [];
+    let sendMsg = [];
     let msg = {
         "role": "user",
         "content": '해당 파일 요약본이랑 질문 예시 좀 줘'
     };
-    firstMsg.push(msg);
+    sendMsg.push(msg);
 
     let params = {
         "sourceId": sourceId,
-	  	"messages": firstMsg
+	  	"messages": sendMsg
     };
 
     // ChatPDF 답변 취득
 	getAnswer(params, 'first');
 }
 
+// 답변 취득
 function getAnswer(params, type) {
 
-    const url = '/api/chat/ask';
+    const url = '/api/chat/send';
 
     fn_fetchPostData(url, JSON.stringify(params))
         .then(data => {
-            console.log(data)
+            let answer = data.content;
+
+            if ( answer != null && answer != '' ) {
+                if ( type == 'first' ) {
+                    let strArr = answer.split('\n');
+                    let idx = strArr.length;
+                    $('#chatAi').empty();
+
+                    for (var i = 0; i < strArr.length; i++) {
+                        if ( strArr[i] != '' ) {
+                            if ( strArr[i].includes('예시 질문') || strArr[i].includes('질문 예시') ) {
+                                idx = i;
+                            }
+                            
+                            if ( i > idx && i != 0 ) {
+                                let spanAiClone = elements.spanAiDetach.clone();
+                                spanAiClone.find('.exAsk').text(strArr[i]);
+                                $('#chatAi').append(spanAiClone);
+                            } else if ( i == idx && i != 0 ) {
+                                $('#chatAi').append('<br><br>'+strArr[i]);
+                            } else {
+                                $('#chatAi').append(strArr[i]);
+                            }
+                        }
+
+                        // pdf 뷰어
+			        	$('.divMiddle').show();
+			        	// chat 
+			        	$('.divRight').show();
+                    } 
+                } else if ( type == 'ask' ) {
+			        let divAClone = elements.divADetach.clone();
+			        divAClone.find('.chat-message').text(answer);
+			        $('#chatUl').append(divAClone);
+                }
+
+                // 전체 로딩 hide
+                $('#loadingDiv').hide();
+                // 로딩 삭제
+                $('.divL').remove();
+            }
         })
         .catch(fn_handleError);
+}
+
+// 예시 질문 클릭시
+function exAsk(el) {
+    let content = $(el).closest('.spanAi').find('.exAsk').text().trim();
+    let sourceId = $('#sourceId').val();
+    
+    if ( sourceId == '' || content == '' ) {
+        alert('처리 중 문제가 발생하였습니다.');
+        console.log('Error function : exAsk');
+        return;
+    }
+    
+    // 질문 설정
+    let sendMsg = [];
+    var msg = {
+            "role": "user",
+              "content": content
+    };
+    sendMsg.push(msg);
+        
+    var params = {
+          "sourceId": sourceId,
+          "messages": sendMsg
+    };
+    
+    // 질문 등록
+    let divHClone = elements.divHDetach.clone();
+    divHClone.find('.chat-message').text(content);
+    $('#chatUl').append(divHClone);
+    
+    // 로딩 
+    chatLoading();
+    
+    // ChatPDF 답변 취득
+    getAnswer(params, 'ask');
+}
+
+// 사용자 질문
+function askAi() {
+    let sourceId = $('#sourceId').val();
+    let content = $('.ant-input').val().trim();
+    
+    if ( sourceId == '' ) {
+        alert('처리 중 문제가 발생하였습니다.');
+        console.log('Error function : askAi');
+        return;
+    }
+    
+    if ( content == '' ) {
+        alert('질문 내용을 작성해주세요');
+        $('.ant-input').val('');
+        return;
+    }
+    
+    let sendMsg = [];
+    let msg = {
+        "role": "user",
+        "content": content
+    };
+    sendMsg.push(msg);
+    
+    let params = {
+          "sourceId": sourceId,
+          "messages": sendMsg
+    };
+    
+    // 질문란 초기화
+    $('.ant-input').val('');
+    // 질문 등록
+    let divHClone = elements.divHDetach.clone();
+    divHClone.find('.chat-message').text(content);
+    $('#chatUl').append(divHClone);
+    
+    // 로딩 
+    chatLoading();
+    
+    // ChatPDF 답변 취득
+    getAnswer(params, 'ask');
+}
+
+// 챗 로딩
+function chatLoading() {
+    // 로딩 
+    let divLClone = elements.divLDetach.clone();
+    $('#chatUl').append(divLClone);
 }

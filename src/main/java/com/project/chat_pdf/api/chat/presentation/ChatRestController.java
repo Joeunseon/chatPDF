@@ -1,0 +1,37 @@
+package com.project.chat_pdf.api.chat.presentation;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.project.chat_pdf.api.chat.application.ChatService;
+import com.project.chat_pdf.util.ControllerUtil;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api")
+@Slf4j
+public class ChatRestController {
+
+    private final ChatService chatService;
+
+    @PostMapping("/chat/send")
+    public ResponseEntity<JsonNode> sendMessage(@RequestBody String data) {
+        log.info("/chat/send");
+
+        return ControllerUtil.handleRequest(() -> {
+            log.info("sendMessage data: " + data);
+            ControllerUtil.validateParams("data", data);
+            return chatService.sendMessage(data);
+        });
+    }
+    
+}
