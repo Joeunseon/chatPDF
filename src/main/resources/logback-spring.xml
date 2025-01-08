@@ -33,11 +33,16 @@
         </encoder>
     </appender>
 
-    <!-- mybatis log 설정 -->
-    <logger name="org.springframework.jdbc.core" level="DEBUG" />
-    <logger name="org.mybatis" level="DEBUG" />
-    <logger name="com.zaxxer.hikari" level="DEBUG" />
-    <logger name="org.springframework.jdbc.datasource" level="TRACE" />
+    <!-- log4j log 설정 -->
+    <logger name="jdbc" level="OFF"/>
+    <logger name="jdbc.sqlonly" level="OFF"/>
+    <logger name="jdbc.sqltiming" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE" />
+    </logger>
+    <logger name="jdbc.audit" level="OFF"/>
+    <logger name="jdbc.resultset" level="OFF"/>
+    <logger name="jdbc.resultsettable" level="OFF"/>
+    <logger name="jdbc.connection" level="OFF"/>
 
     <!-- 로그 전역 설정 -->
     <root level="${LOG_LEVEL}">

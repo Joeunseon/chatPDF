@@ -34,15 +34,12 @@ public class FileRestController {
     }
 
     @PostMapping("/file")
-    public ResponseEntity<JsonNode> addPDFFile(@RequestParam("file") MultipartFile file) {
-        log.info("/file/addPDFFile");
+    public ResponseEntity<JsonNode> create(@RequestParam("file") MultipartFile file) {
+        log.info("/file/create");
         
         return ControllerUtil.handleRequest(() -> {
-            File tempFile = File.createTempFile("upload-", file.getOriginalFilename());
-            file.transferTo(tempFile);
-            tempFile.deleteOnExit();
 
-            return fileService.addPDFFile(tempFile);
+            return fileService.create(file);
         });
     }
     
