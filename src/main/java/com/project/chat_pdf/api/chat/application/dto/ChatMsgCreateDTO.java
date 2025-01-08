@@ -1,15 +1,19 @@
-package com.project.chat_pdf.api.chat.domain;
+package com.project.chat_pdf.api.chat.application.dto;
 
+import com.project.chat_pdf.api.chat.domain.ChatMsg;
 import com.project.chat_pdf.api.chat.value.SendType;
 import com.project.chat_pdf.api.chat.value.Sender;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
 @NoArgsConstructor
-public class ChatMsg {
+@AllArgsConstructor
+public class ChatMsgCreateDTO {
 
     // @Id
     // 채팅SEQ
@@ -34,15 +38,15 @@ public class ChatMsg {
     // 등록일시
     private String regDt;
 
-    @Builder
-    public ChatMsg(Long chatSeq, Long roomSeq, Sender sender, SendType sendType, String content, int order, String regDt) {
+    private String apiId;
 
-        this.chatSeq = chatSeq;
-        this.roomSeq = roomSeq;
-        this.sender = sender;
-        this.sendType = sendType;
-        this.content = content;
-        this.order = order;
-        this.regDt = regDt;
+    public ChatMsg toEntity(String content, Sender sender, int order) {
+        return ChatMsg.builder()
+                .roomSeq(roomSeq)
+                .sender(sender)
+                .sendType(sendType)
+                .content(content)
+                .order(order)
+                .build();
     }
 }

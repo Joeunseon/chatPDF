@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.project.chat_pdf.api.chat.application.ChatService;
+import com.project.chat_pdf.api.chat.application.dto.ChatMsgCreateDTO;
 import com.project.chat_pdf.util.ControllerUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -23,14 +24,12 @@ public class ChatRestController {
 
     private final ChatService chatService;
 
-    @PostMapping("/chat/send")
-    public ResponseEntity<JsonNode> sendMessage(@RequestBody String data) {
-        log.info("/chat/send");
+    @PostMapping("/chat")
+    public ResponseEntity<JsonNode> create(@RequestBody ChatMsgCreateDTO createDTO) {
 
         return ControllerUtil.handleRequest(() -> {
-            log.info("sendMessage data: " + data);
-            ControllerUtil.validateParams("data", data);
-            return chatService.sendMessage(data);
+            
+            return chatService.sendMessage(createDTO);
         });
     }
     

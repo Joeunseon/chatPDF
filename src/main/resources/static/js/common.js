@@ -38,6 +38,17 @@ function fn_fetchPostData(url, formData) {
     });
 }
 
+function fn_fetchPostData(url, formData, header) {
+    return fetch(url, {
+        method: 'POST',
+        headers: header,
+        body: formData
+    }).then(response => {
+        if (!response.ok) throw new Error('Failed to fetch data');
+        return response.json();
+    });
+}
+
 /**
  * 에러 처리
  * @param {Error} err - 에러 객체

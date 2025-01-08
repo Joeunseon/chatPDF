@@ -1,4 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.project.chat_pdf.api.chat.infrastructure.ChatMsgMapper">
+
+    <select id="findNextOrder" resultType="Integer">
+        /* ChatMsg.findNextOrder */
+        SELECT COALESCE(MAX(`order`), 0) + 1
+        FROM chat_msg
+        WHERE room_seq = #{roomSeq}
+    </select>
+
+    <insert id="create">
+        /* ChatMsg.create */
+        INSERT
+        INTO chat_msg
+            (
+                room_seq,
+                sender,
+                send_type,
+                content,
+                `order`
+            )
+        VALUES
+            (
+                #{roomSeq},
+                #{sender},
+                #{sendType},
+                #{content},
+                #{order}
+            )
+    </insert>
+
+
 </mapper>
