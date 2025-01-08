@@ -111,6 +111,7 @@ function fileUpload() {
             let sourceId = data.sourceId;
             if ( sourceId != null && sourceId != '' ) {
                 $('#sourceId').val(sourceId);
+                $('#roomSeq').val(data.roomSeq);
                 return true;
             } 
             return false;
@@ -150,8 +151,9 @@ function firstAskAi() {
     sendMsg.push(msg);
 
     let params = {
-        "sourceId": sourceId,
-	  	"messages": sendMsg
+        "apiId": sourceId,
+	  	"sendType": 'FIRST',
+        "roomSeq": $('#roomSeq').val()
     };
 
     // ChatPDF 답변 취득
@@ -161,9 +163,13 @@ function firstAskAi() {
 // 답변 취득
 function getAnswer(params, type) {
 
-    const url = '/api/chat/send';
+    const url = '/api/chat';
 
-    fn_fetchPostData(url, JSON.stringify(params))
+    const header = {
+        'Content-Type': 'application/json',
+      };
+
+    fn_fetchPostData(url, JSON.stringify(params), header)
         .then(data => {
             let answer = data.content;
 

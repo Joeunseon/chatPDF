@@ -1,6 +1,5 @@
 package com.project.chat_pdf.api.file.presentation;
 
-import java.io.File;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
