@@ -8,7 +8,8 @@ const elements = {
     spanAiDetach : $('.spanAi').detach(), // 첫 요약 및 예시
     divHDetach : $('.divH').detach(),     // 질문
     divADetach : $('.divA').detach(),     // 답변
-    divLDetach : $('.divL').detach()      // chat loading
+    divLDetach : $('.divL').detach(),      // chat loading
+    chatRoomDetach : $('.chat-room').detach() // chat room
 };
 
 let maxRequestSize; // 서버로 보낼수있는 파일 최대 크기
@@ -17,6 +18,8 @@ let maxFileSize;	// 단일 파일 최대 크기
 $(document).ready(function () {
 
     fileInit();
+
+    roomsInit();
 
     // 파일 업로드시
     $('#inputFile').bind('change', function() {
@@ -36,6 +39,22 @@ $(document).ready(function () {
           askAi();
         }
     });
+
+    // 채팅방 클릭시
+    $(document).on('click', '.chat-room', function() {
+        // 데이터 설정
+        $('.divMiddle').find('h1').text($(this).find('span').text());
+        $('#sourceId').val($(this).data('apiId'));
+        $('#roomSeq').val($(this).data('roomSeq'));
+
+        // 파일 뷰어 페이지 초기화
+        $('#pdfContainer').empty();
+        // 전체 화면 로딩 
+        $('#loadingDiv').show();
+
+        // 채팅방 내용 가져오기
+        getChat($(this).data('fileSeq'));
+    });
 });
 
 /**
@@ -49,6 +68,27 @@ function fileInit() {
         .then(data => {
             maxRequestSize = data.maxRequestSize;
             maxFileSize = maxFileSize;
+        })
+        .catch(fn_handleError);
+}
+
+function roomsInit() {
+    const url = '/api/rooms';
+
+    fn_fetchGetData(url)
+        .then(data => {
+            if ( data.resultCnt > 0 ) {
+                data.resultList.forEach(item => {
+                    let divClone = elements.chatRoomDetach.clone();
+
+                    divClone.data('roomSeq', item.roomSeq);
+                    divClone.data('fileSeq', item.fileSeq);
+                    divClone.data('apiId', item.apiId);
+                    divClone.find('span').text(item.title);
+                    
+                    $('.chat-rooms').append(divClone);
+                });
+            }
         })
         .catch(fn_handleError);
 }
@@ -354,4 +394,8 @@ function renderPDF(file) {
     };
 
     fileReader.readAsArrayBuffer(file);
+}
+
+function getChat(fileSeq) {
+
 }

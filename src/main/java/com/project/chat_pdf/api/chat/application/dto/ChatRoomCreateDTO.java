@@ -25,6 +25,9 @@ public class ChatRoomCreateDTO {
     // API ID
     private String apiId;
 
+    // 채팅방 제목
+    private String title;
+
     // 삭제여부 (Y/N)
     private DelYn delYn;
 
@@ -38,6 +41,7 @@ public class ChatRoomCreateDTO {
         return ChatRoom.builder()
                     .fileSeq(fileSeq)
                     .apiId(apiId)
+                    .title(title)
                     .delYn(delYn)
                     .build();
     }

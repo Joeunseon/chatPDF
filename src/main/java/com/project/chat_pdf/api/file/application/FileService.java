@@ -73,6 +73,7 @@ public class FileService {
             ChatRoomCreateDTO roomCreateDTO = ChatRoomCreateDTO.builder()
                                                 .fileSeq(create.getFileSeq())
                                                 .apiId(apiId)
+                                                .title(create.getOriNm())
                                                 .delYn(DelYn.N)
                                                 .build();
             
