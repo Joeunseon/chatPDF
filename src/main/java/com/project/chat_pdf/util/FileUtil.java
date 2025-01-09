@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -96,5 +98,21 @@ public class FileUtil {
         } while (file.exists());
 
         return file.getName();
+    }
+
+    public Resource downloadFile(String strePath, String strNm) throws Exception {
+
+        // 파일 경로 설정
+        String filePath = strePath + File.separator + strNm;
+
+        Path path = Paths.get(filePath);
+        Resource resource = new InputStreamResource(Files.newInputStream(path));
+
+        if ( resource.exists() && resource.isReadable() ) {
+            return resource;
+        } else {
+            log.info("[fileUtils.downloadFile] NOT_FOUND : " + filePath);
+            return null;
+        }
     }
 }
