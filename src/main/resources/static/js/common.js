@@ -55,5 +55,5 @@ function fn_fetchPostData(url, formData, header) {
  */
 function fn_handleError(err) {
     console.error('Error occurred:', err.message);
-    alert('검색 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
 }
