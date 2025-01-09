@@ -15,4 +15,6 @@ public interface ChatRoomMapper {
     public List<ChatRoomDTO> findAll();
 
     public Long create(ChatRoom chatRoom);
+
+    public Long delete(Long roomSeq);
 }

@@ -22,6 +22,7 @@ function fn_fetchGetData(url) {
     });
 }
 
+// Fetch GET blob 요청 유틸리티
 function fn_fetchGetBlod(url) {
     return fetch(url, headers).then(response => {
         if (!response.ok) throw new Error('Failed to fetch data');
@@ -50,6 +51,18 @@ function fn_fetchPostData(url, formData, header) {
         method: 'POST',
         headers: header,
         body: formData
+    }).then(response => {
+        if (!response.ok) throw new Error('Failed to fetch data');
+        return response.json();
+    });
+}
+
+function fn_fetchDeleteData(url) {
+    return fetch(url, {
+        method: 'DELETE',
+        headers: {
+        'Content-Type': 'application/json',
+        }
     }).then(response => {
         if (!response.ok) throw new Error('Failed to fetch data');
         return response.json();
