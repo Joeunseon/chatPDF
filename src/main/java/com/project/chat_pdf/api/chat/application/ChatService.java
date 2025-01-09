@@ -106,7 +106,14 @@ public class ChatService {
         return jsonNode;
     }
 
-    public Long roomCreate(ChatRoom chatRoom) {
-        return chatRoomMapper.create(chatRoom);
+    public ResponseEntity<Boolean> delete(Long roomSeq) {
+
+        Long result = chatRoomMapper.delete(roomSeq);
+
+        if ( result > 0 ) {
+            return ResponseEntity.ok().body(true);
+        } else {
+            return ResponseEntity.internalServerError().body(false);
+        }
     }
 }

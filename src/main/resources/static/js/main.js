@@ -68,6 +68,7 @@ function roomsInit() {
 
                     divClone.find('span').text(item.title);
 
+                    // 채팅방 클릭시
                     divClone.on('click', () => {
                         // 데이터 설정
                         $('.divMiddle').find('h1').text(item.title);
@@ -81,6 +82,79 @@ function roomsInit() {
 
                         // 채팅방 내용 가져오기
                         getContent(item.fileSeq);
+                    });
+
+                    // 옵션 버튼 클릭시
+                    divClone.find('.options-button').on('click', (e) => {
+                        // 이벤트 버블링 방지
+                        e.stopPropagation();
+
+                        //divClone.find('.options-menu').show();
+                        const menu = divClone.find('.options-menu');
+
+                        // 기존 열린 메뉴 닫기
+                        $('.options-menu').not(menu).hide();
+
+                        // 현재 메뉴 토글
+                        menu.toggle();
+
+                        // 메뉴 외부 클릭 시 닫기
+                        $(document).on('mousedown.options-menu', (event) => {
+                            if (!$(event.target).closest(menu).length && !$(event.target).is('.options-button')) {
+                                menu.hide();
+                                $(document).off('mousedown.options-menu'); // 이벤트 해제
+                            }
+                        });
+                    });
+
+                    // 옵션 메뉴 버튼 클릭시
+                    divClone.find('.options-menu').on('click', (e) => {
+                        // 이벤트 버블링 방지
+                        e.stopPropagation();
+                    });
+
+                    divClone.find('.options-upd').on('click', (e) => {
+                        // 이벤트 버블링 방지
+                        e.stopPropagation();
+
+                        const titleElement = divClone.find('span');
+                        const currentTitle = titleElement.text();
+
+                        // 이름 변경을 위한 입력창 생성
+                        const input = $('<input type="text" class="title-input">')
+                            .val(currentTitle)
+                            .css({
+                                width: '100%',
+                                padding: '4px',
+                                boxSizing: 'border-box',
+                            });
+
+                        // 기존 제목을 입력창으로 변경
+                        titleElement.replaceWith(input);
+                        input.focus();
+
+                        // 이벤트 버블링 방지
+                        input.on('click', (e) => e.stopPropagation());
+
+                        // 입력창 포커스를 잃었을 때 처리
+                        input.on('blur', () => {
+                            const newTitle = input.val().trim() || currentTitle; // 입력값 없을 시 기존 제목 유지
+                            input.replaceWith(`<span style="color: white;">${newTitle}</span>`);
+                            item.title = newTitle; // 데이터 업데이트
+                        });
+                    });
+
+                    // 삭제 버튼 클릭시
+                    divClone.find('.options-del').on('click', (e) => {
+                        // 이벤트 버블링 방지
+                        e.stopPropagation();
+
+                        if ( confirm('해당 채팅방을 삭제하시겠습니까?') ) {
+                            delRoom(item.roomSeq, isDeleted => {
+                                if (isDeleted) 
+                                    divClone.remove();
+                            });
+                        }
                     });
                     
                     $('.chat-rooms').append(divClone);
@@ -462,4 +536,28 @@ function getContent(fileSeq) {
 
         })
         .catch(fn_handleError);
+}
+
+function delRoom(roomSeq, callback) {
+
+    const url = '/api/room/' + roomSeq;
+
+    fn_fetchDeleteData(url)
+        .then(data => {
+            if ( data && roomSeq == $('#roomSeq').val() ) {
+                // pdf 뷰어
+                $('.divMiddle').hide();
+                // chat 
+                $('.divRight').hide();
+                // 초기화
+                $('#sourceId').val('');
+                $('#roomSeq').val('');
+            }
+
+            callback(data);
+        })
+        .catch(error => {
+            fn_handleError(error);
+            callback(false);
+        });
 }

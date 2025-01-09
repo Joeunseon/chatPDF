@@ -38,4 +38,12 @@
                 #{delYn}
             )
     </insert>
+
+    <update id="delete">
+        /* ChatRoom.delete */
+        UPDATE chat_room
+        SET del_yn = 'Y'
+            , upd_dt = now()
+        WHERE room_seq = #{roomSeq}
+    </update>
 </mapper>
