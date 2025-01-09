@@ -11,11 +11,11 @@ import com.project.chat_pdf.util.ControllerUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -32,6 +32,12 @@ public class ChatRestController {
     public ResponseEntity<Map<String, Object>> rooms() {
         
         return chatService.rooms();
+    }
+
+    @GetMapping("/msgs/{roomSeq}")
+    public ResponseEntity<Map<String, Object>> msgs(@PathVariable Long roomSeq) {
+
+        return chatService.msgs(roomSeq);
     }
 
     @PostMapping("/chat")

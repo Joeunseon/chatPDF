@@ -2,6 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.project.chat_pdf.api.chat.infrastructure.ChatMsgMapper">
 
+    <select id="countAll" resultType="Integer">
+        /* ChatMsg.countAll */
+        SELECT COUNT(chat_seq)
+        FROM chat_msg
+        WHERE room_seq = #{roomSeq}
+    </select>
+
+    <select id="findAll" resultType="ChatMsgDTO">
+        /* ChatMsg.findAll */
+        SELECT sender
+               , send_type
+               , content
+               , `order`
+        FROM chat_msg
+        WHERE room_seq = #{roomSeq}
+        ORDER BY `order` ASC
+    </select>
+
     <select id="findNextOrder" resultType="Integer">
         /* ChatMsg.findNextOrder */
         SELECT COALESCE(MAX(`order`), 0) + 1
