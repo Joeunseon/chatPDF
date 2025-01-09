@@ -40,21 +40,6 @@ $(document).ready(function () {
         }
     });
 
-    // 채팅방 클릭시
-    $(document).on('click', '.chat-room', function() {
-        // 데이터 설정
-        $('.divMiddle').find('h1').text($(this).find('span').text());
-        $('#sourceId').val($(this).data('apiId'));
-        $('#roomSeq').val($(this).data('roomSeq'));
-
-        // 파일 뷰어 페이지 초기화
-        $('#pdfContainer').empty();
-        // 전체 화면 로딩 
-        $('#loadingDiv').show();
-
-        // 채팅방 내용 가져오기
-        getChat($(this).data('fileSeq'));
-    });
 });
 
 /**
@@ -81,10 +66,25 @@ function roomsInit() {
                 data.resultList.forEach(item => {
                     let divClone = elements.chatRoomDetach.clone();
 
-                    divClone.data('roomSeq', item.roomSeq);
+                    /* divClone.data('roomSeq', item.roomSeq);
                     divClone.data('fileSeq', item.fileSeq);
-                    divClone.data('apiId', item.apiId);
+                    divClone.data('apiId', item.apiId); */
                     divClone.find('span').text(item.title);
+
+                    divClone.on('click', () => {
+                        // 데이터 설정
+                        $('.divMiddle').find('h1').text(item.title);
+                        $('#sourceId').val($(this).data(item.apiId));
+                        $('#roomSeq').val($(this).data(item.roomSeq));
+
+                        // 파일 뷰어 페이지 초기화
+                        $('#pdfContainer').empty();
+                        // 전체 화면 로딩 
+                        $('#loadingDiv').show();
+
+                        // 채팅방 내용 가져오기
+                        getContent(item.fileSeq);
+                    });
                     
                     $('.chat-rooms').append(divClone);
                 });
@@ -160,6 +160,8 @@ function fileUpload() {
             if ( flag ) {
                 // 요약과 질문 예시
                 firstAskAi();
+                // 채팅방 목록 취득
+                roomsInit();
             } else {
                 $('#loadingDiv').hide();
             }
@@ -396,6 +398,18 @@ function renderPDF(file) {
     fileReader.readAsArrayBuffer(file);
 }
 
-function getChat(fileSeq) {
+function getContent(fileSeq) {
 
+    const url = '/api/file/' + fileSeq;
+
+    fn_fetchGetBlod(url)
+        .then(blob => {
+            renderPDF(blob);
+            // pdf 뷰어
+            $('.divMiddle').show();
+        })
+        .then({
+            
+        })
+        .catch(fn_handleError);
 }

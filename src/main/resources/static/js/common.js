@@ -22,6 +22,13 @@ function fn_fetchGetData(url) {
     });
 }
 
+function fn_fetchGetBlod(url) {
+    return fetch(url, headers).then(response => {
+        if (!response.ok) throw new Error('Failed to fetch data');
+        return response.blob();
+    });
+}
+
 /**
  * 공통 Fetch POST 요청 유틸리티
  * @param {string} url - 요청 URL

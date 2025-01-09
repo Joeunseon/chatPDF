@@ -1,9 +1,13 @@
 package com.project.chat_pdf.api.file.application;
 
 import java.io.File;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +18,7 @@ import com.project.chat_pdf.api.chat.application.dto.ChatRoomCreateDTO;
 import com.project.chat_pdf.api.chat.domain.ChatRoom;
 import com.project.chat_pdf.api.chat.infrastructure.ChatRoomMapper;
 import com.project.chat_pdf.api.chat.value.DelYn;
+import com.project.chat_pdf.api.file.application.dto.FileDTO;
 import com.project.chat_pdf.api.file.infrastructure.FileMapper;
 import com.project.chat_pdf.util.ChatPdfUtil;
 import com.project.chat_pdf.util.FileUtil;
@@ -92,5 +97,31 @@ public class FileService {
             return null;
         }
 
+    }
+
+    public ResponseEntity<Resource> findById(Long fileSeq) {
+
+        try {
+            FileDTO dto = fileMapper.findById(fileSeq);
+
+            if ( StringUtils.isNotBlank(dto.getPath()) && StringUtils.isNotBlank(dto.getStreNm()) ) {
+                Resource resource = fileUtil.downloadFile(dto.getPath(), dto.getStreNm());
+
+                if ( resource != null ) {
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" 
+                        + URLEncoder.encode((StringUtils.isNotBlank(dto.getOriNm()) ? dto.getOriNm() : dto.getStreNm()), "UTF-8"));
+
+                    return ResponseEntity.ok().headers(headers).body(resource);
+                }
+            } 
+            
+            return ResponseEntity.notFound().build();
+            
+        } catch (Exception e) {
+            log.error("[fileService.findById]: ");
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }
