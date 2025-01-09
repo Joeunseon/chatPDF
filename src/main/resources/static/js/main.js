@@ -66,16 +66,13 @@ function roomsInit() {
                 data.resultList.forEach(item => {
                     let divClone = elements.chatRoomDetach.clone();
 
-                    /* divClone.data('roomSeq', item.roomSeq);
-                    divClone.data('fileSeq', item.fileSeq);
-                    divClone.data('apiId', item.apiId); */
                     divClone.find('span').text(item.title);
 
                     divClone.on('click', () => {
                         // 데이터 설정
                         $('.divMiddle').find('h1').text(item.title);
-                        $('#sourceId').val($(this).data(item.apiId));
-                        $('#roomSeq').val($(this).data(item.roomSeq));
+                        $('#sourceId').val(item.apiId);
+                        $('#roomSeq').val(item.roomSeq);
 
                         // 파일 뷰어 페이지 초기화
                         $('#pdfContainer').empty();
@@ -400,16 +397,69 @@ function renderPDF(file) {
 
 function getContent(fileSeq) {
 
-    const url = '/api/file/' + fileSeq;
+    const fileUrl = '/api/file/' + fileSeq;
 
-    fn_fetchGetBlod(url)
+    fn_fetchGetBlod(fileUrl)
         .then(blob => {
             renderPDF(blob);
             // pdf 뷰어
             $('.divMiddle').show();
         })
-        .then({
-            
+        .catch(fn_handleError);
+
+    const msgUrl = '/api/msgs/' + $('#roomSeq').val();
+
+    fn_fetchGetData(msgUrl)
+        .then(data => {
+            if ( data.resultCnt > 0 ) {
+
+                data.resultList.forEach(item => {
+                    let answer = item.content;
+
+                    if ( item.sendType == 'FIRST' ) {
+                        let strArr = answer.split('\n');
+                        let idx = strArr.length;
+                        $('#chatAi').empty();
+    
+                        for (var i = 0; i < strArr.length; i++) {
+                            if ( strArr[i] != '' ) {
+                                if ( strArr[i].includes('예시 질문') || strArr[i].includes('질문 예시') ) {
+                                    idx = i;
+                                }
+                                
+                                if ( i > idx && i != 0 ) {
+                                    let spanAiClone = elements.spanAiDetach.clone();
+                                    spanAiClone.find('.exAsk').text(strArr[i]);
+                                    $('#chatAi').append(spanAiClone);
+                                } else if ( i == idx && i != 0 ) {
+                                    $('#chatAi').append('<br><br>'+strArr[i]);
+                                } else {
+                                    $('#chatAi').append(strArr[i]);
+                                }
+                            }
+                        } 
+                    } else if ( item.sender == 'assistant' ) {
+                        let divAClone = elements.divADetach.clone();
+                        divAClone.find('.chat-message').text(answer);
+                        $('#chatUl').append(divAClone);
+                    } else {
+                        let divHClone = elements.divHDetach.clone();
+                        divHClone.find('.chat-message').text(answer);
+                        $('#chatUl').append(divHClone);
+                    }
+                });
+
+                // chat 
+                $('.divRight').show();
+                // 전체 로딩 hide
+                $('#loadingDiv').hide();
+                // 로딩 삭제
+                $('.divL').remove();
+            } else {
+                // 요약과 질문 예시
+                firstAskAi();
+            }
+
         })
         .catch(fn_handleError);
 }

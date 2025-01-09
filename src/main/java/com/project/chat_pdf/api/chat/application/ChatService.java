@@ -53,6 +53,25 @@ public class ChatService {
         }
     }
 
+    public ResponseEntity<Map<String, Object>> msgs(Long roomSeq) {
+
+        try {
+            Map<String, Object> resultMap = new HashMap<>();
+
+            Integer countAll = chatMsgMapper.countAll(roomSeq);
+            resultMap.put("resultCnt", countAll);
+
+            if ( countAll > 0 )
+                resultMap.put("resultList", chatMsgMapper.findAll(roomSeq));
+
+            return ResponseEntity.ok().body(resultMap);
+        } catch (Exception e) {
+            log.error("[ChatService.msgs]: ");
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(null);
+        }
+    }
+
     public JsonNode sendMessage(ChatMsgCreateDTO createDTO) throws Exception {
 
         String content = "";
