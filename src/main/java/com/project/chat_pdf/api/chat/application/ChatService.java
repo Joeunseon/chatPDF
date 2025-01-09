@@ -3,6 +3,7 @@ package com.project.chat_pdf.api.chat.application;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,6 +33,25 @@ public class ChatService {
     private final ChatMsgMapper chatMsgMapper;
 
     private final String MSG = "해당 파일 요약본이랑 질문 예시 좀 줘";
+
+    public ResponseEntity<Map<String, Object>> rooms() {
+
+        try {
+            Map<String, Object> resultMap = new HashMap<>();
+            
+            Integer countAll = chatRoomMapper.countAll();
+            resultMap.put("resultCnt", countAll);
+            
+            if ( countAll > 0 )
+                resultMap.put("resultList", chatRoomMapper.findAll());
+            
+            return ResponseEntity.ok().body(resultMap);
+        } catch (Exception e) {
+            log.error("[ChatService.rooms]: ");
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(null);
+        }
+    }
 
     public JsonNode sendMessage(ChatMsgCreateDTO createDTO) throws Exception {
 

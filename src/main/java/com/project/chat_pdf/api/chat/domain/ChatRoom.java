@@ -21,6 +21,9 @@ public class ChatRoom {
     // API ID
     private String apiId;
 
+    // 채팅방 제목
+    private String title;
+
     // 삭제여부 (Y/N)
     private DelYn delYn;
 
@@ -31,11 +34,12 @@ public class ChatRoom {
     private String updDt;
 
     @Builder
-    public ChatRoom(Long roomSeq, Long fileSeq, String apiId, DelYn delYn, String regDt, String updDt) {
+    public ChatRoom(Long roomSeq, Long fileSeq, String apiId, String title, DelYn delYn, String regDt, String updDt) {
 
         this.roomSeq = roomSeq;
         this.fileSeq = fileSeq;
         this.apiId = apiId;
+        this.title = title;
         this.delYn = delYn;
         this.regDt = regDt;
         this.updDt = updDt;

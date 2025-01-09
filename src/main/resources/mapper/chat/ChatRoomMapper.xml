@@ -2,6 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.project.chat_pdf.api.chat.infrastructure.ChatRoomMapper">
 
+    <select id="countAll" resultType="Integer">
+        /* ChatRoom.countAll */
+        SELECT COUNT(room_seq)
+        FROM chat_room
+        WHERE del_yn = 'N'
+    </select>
+
+    <select id="findAll" resultType="ChatRoomDTO">
+        /* ChatRoom.findAll */
+        SELECT room_seq
+               , file_seq
+               , api_id
+               , title
+        FROM chat_room
+        WHERE del_yn = 'N'
+        ORDER BY upd_dt DESC;
+    </select>
+
     <insert id="create" keyProperty="roomSeq" useGeneratedKeys="true">
         /* ChatRoom.create */
         INSERT
@@ -9,12 +27,14 @@
             (
                 file_seq,
                 api_id,
+                title,
                 del_yn
             )
         VALUES
             (
                 #{fileSeq},
                 #{apiId},
+                #{title},
                 #{delYn}
             )
     </insert>
