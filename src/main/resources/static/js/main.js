@@ -136,24 +136,18 @@ function firstAskAi() {
     $('.ant-input').val('');
 
     let sourceId = $('#sourceId').val();
+    let roomSeq = $('#roomSeq').val();
 
-    if ( sourceId == '' ) {
+    if ( sourceId == '' || roomSeq == '' ) {
         alert('처리 중 문제가 발생하였습니다.');
         console.log('Error function : firstAskAi');
         return;
     }
 
-    let sendMsg = [];
-    let msg = {
-        "role": "user",
-        "content": '해당 파일 요약본이랑 질문 예시 좀 줘'
-    };
-    sendMsg.push(msg);
-
     let params = {
         "apiId": sourceId,
 	  	"sendType": 'FIRST',
-        "roomSeq": $('#roomSeq').val()
+        "roomSeq": roomSeq
     };
 
     // ChatPDF 답변 취득
@@ -167,7 +161,7 @@ function getAnswer(params, type) {
 
     const header = {
         'Content-Type': 'application/json',
-      };
+    };
 
     fn_fetchPostData(url, JSON.stringify(params), header)
         .then(data => {
@@ -220,24 +214,20 @@ function getAnswer(params, type) {
 function exAsk(el) {
     let content = $(el).closest('.spanAi').find('.exAsk').text().trim();
     let sourceId = $('#sourceId').val();
+    let roomSeq = $('#roomSeq').val();
     
-    if ( sourceId == '' || content == '' ) {
+    if ( sourceId == '' || content == '' || roomSeq == '' ) {
         alert('처리 중 문제가 발생하였습니다.');
         console.log('Error function : exAsk');
         return;
     }
-    
-    // 질문 설정
-    let sendMsg = [];
-    var msg = {
-            "role": "user",
-              "content": content
-    };
-    sendMsg.push(msg);
-        
-    var params = {
-          "sourceId": sourceId,
-          "messages": sendMsg
+
+    let params = {
+        "apiId": sourceId,
+        "sender": 'user',
+	  	"sendType": 'OTHER',
+        "roomSeq": roomSeq,
+        "content": content
     };
     
     // 질문 등록
@@ -255,9 +245,10 @@ function exAsk(el) {
 // 사용자 질문
 function askAi() {
     let sourceId = $('#sourceId').val();
+    let roomSeq = $('#roomSeq').val();
     let content = $('.ant-input').val().trim();
     
-    if ( sourceId == '' ) {
+    if ( sourceId == '' || roomSeq == '' ) {
         alert('처리 중 문제가 발생하였습니다.');
         console.log('Error function : askAi');
         return;
@@ -268,17 +259,13 @@ function askAi() {
         $('.ant-input').val('');
         return;
     }
-    
-    let sendMsg = [];
-    let msg = {
-        "role": "user",
-        "content": content
-    };
-    sendMsg.push(msg);
-    
+
     let params = {
-          "sourceId": sourceId,
-          "messages": sendMsg
+        "apiId": sourceId,
+        "sender": 'user',
+	  	"sendType": 'OTHER',
+        "roomSeq": roomSeq,
+        "content": content
     };
     
     // 질문란 초기화
