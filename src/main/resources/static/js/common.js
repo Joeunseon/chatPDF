@@ -57,6 +57,17 @@ function fn_fetchPostData(url, formData, header) {
     });
 }
 
+function fn_fetchPatchData(url, formData, header) {
+    return fetch(url, {
+        method: 'PATCH',
+        headers: header,
+        body: formData
+    }).then(response => {
+        if (!response.ok) throw new Error('Failed to fetch data');
+        return response.json();
+    });
+}
+
 function fn_fetchDeleteData(url) {
     return fetch(url, {
         method: 'DELETE',

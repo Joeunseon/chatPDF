@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.chat_pdf.api.chat.application.dto.ChatMsgCreateDTO;
+import com.project.chat_pdf.api.chat.application.dto.ChatRoomUpdateDTO;
 import com.project.chat_pdf.api.chat.domain.ChatMsg;
 import com.project.chat_pdf.api.chat.domain.ChatRoom;
 import com.project.chat_pdf.api.chat.infrastructure.ChatMsgMapper;
@@ -104,6 +105,19 @@ public class ChatService {
         chatMsgMapper.create(chatMsg);
 
         return jsonNode;
+    }
+
+    public ResponseEntity<Boolean> update(ChatRoomUpdateDTO updateDTO) {
+
+        ChatRoom chatRoom = updateDTO.toEntitiy();
+
+        Long result = chatRoomMapper.update(chatRoom);
+
+        if ( result > 0 ) {
+            return ResponseEntity.ok().body(true);
+        } else {
+            return ResponseEntity.internalServerError().body(false);
+        }
     }
 
     public ResponseEntity<Boolean> delete(Long roomSeq) {

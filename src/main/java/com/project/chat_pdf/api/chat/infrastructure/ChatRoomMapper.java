@@ -16,5 +16,7 @@ public interface ChatRoomMapper {
 
     public Long create(ChatRoom chatRoom);
 
+    public Long update(ChatRoom chatRoom);
+
     public Long delete(Long roomSeq);
 }
