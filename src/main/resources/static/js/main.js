@@ -47,7 +47,7 @@ $(document).ready(function () {
  * properties에 설정된 maxRequestSize, maxFileSize 취득
  */
 function fileInit() {
-    const url = '/api/file/multipart';
+    const url = '/api/file/config';
 
     fn_fetchGetData(url)
         .then(data => {
