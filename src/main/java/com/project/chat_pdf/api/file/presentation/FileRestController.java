@@ -1,7 +1,5 @@
 package com.project.chat_pdf.api.file.presentation;
 
-import java.io.FileNotFoundException;
-import java.net.URLEncoder;
 import java.util.Map;
 
 import org.springframework.core.io.Resource;
@@ -57,7 +55,7 @@ public class FileRestController {
 
         return ResponseEntity.ok()
             .headers(headers)
-            .body(resource);
+            .body(resource);        // HTTP 200 OK
     }
 
     @PostMapping("/file")
@@ -65,7 +63,7 @@ public class FileRestController {
         log.info("/file/create");
         
         JsonNode response = fileService.create(file);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);    // HTTP 201 CREATED
     }
     
 }

@@ -36,10 +36,10 @@ public class ChatRestController {
 
         try {
             Map<String, Object> rooms = chatService.rooms();
-            return ResponseEntity.ok(rooms);
+            return ResponseEntity.ok(rooms); // HTTP 200 OK
         } catch (Exception e) {
             log.error("Error fetching rooms: ", e);
-            return ResponseEntity.internalServerError().body(null);
+            return ResponseEntity.internalServerError().body(null); // HTTP 500 Internal Server Error
         }
     }
 
@@ -48,10 +48,10 @@ public class ChatRestController {
         
         try {
             Map<String, Object> messages = chatService.msgs(roomSeq);
-            return ResponseEntity.ok(messages);
+            return ResponseEntity.ok(messages); // HTTP 200 OK
         } catch (Exception e) {
             log.error("Error fetching messages: ", e);
-            return ResponseEntity.internalServerError().body(null);
+            return ResponseEntity.internalServerError().body(null); // HTTP 500 Internal Server Error
         }
     }
 
@@ -60,10 +60,10 @@ public class ChatRestController {
 
         try {
             JsonNode response = chatService.sendMessage(createDTO);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response); // HTTP 200 OK
         } catch (Exception e) {
             log.error("Error sending message: ", e);
-            return ResponseEntity.internalServerError().body(null);
+            return ResponseEntity.internalServerError().body(null); // HTTP 500 Internal Server Error
         }
     }
 
@@ -79,7 +79,7 @@ public class ChatRestController {
             }
         } catch (Exception e) {
             log.error("Error updating chat room: ", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false); // HTTP 500 Internal Server Error
         }
     }
     
@@ -95,7 +95,7 @@ public class ChatRestController {
             }
         } catch (Exception e) {
             log.error("Error deleting chat room: ", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false); // HTTP 500 Internal Server Error
         }
     }
 }

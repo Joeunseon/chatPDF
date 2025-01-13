@@ -116,12 +116,24 @@ public class FileService {
         return resource;
     }
 
+    /**
+     * 파일 DB 등록
+     * @param file
+     * @return
+     * @throws Exception
+     */
     private FileInfo saveFileToDatabase(MultipartFile file) throws Exception {
         FileInfo fileInfo = fileUtil.uploadFile(file);
         fileMapper.create(fileInfo);
         return fileInfo;
     }
 
+    /**
+     * 임시 파일 저장
+     * @param file
+     * @return
+     * @throws IOException
+     */
     private File createTempFile(MultipartFile file) throws IOException {
         File tempFile = File.createTempFile("upload-", file.getOriginalFilename());
         file.transferTo(tempFile);
@@ -129,6 +141,12 @@ public class FileService {
         return tempFile;
     }
 
+    /**
+     * 파일 저장
+     * @param tempFile
+     * @return
+     * @throws IOException
+     */
     private JsonNode processFileWithExternalService(File tempFile) throws IOException {
         return ResponseProcessorUtil.processResponse(
             chatPdfUtil.addPDFFile(tempFile), "[FileService.addPDFFile]"
