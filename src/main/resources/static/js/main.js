@@ -59,6 +59,7 @@ function fileInit() {
 
 function roomsInit() {
     const url = '/api/rooms';
+    $('.chat-rooms').empty();
 
     fn_fetchGetData(url)
         .then(data => {
@@ -308,9 +309,9 @@ function getAnswer(params, type) {
                                 spanAiClone.find('.exAsk').text(strArr[i]);
                                 $('#chatAi').append(spanAiClone);
                             } else if ( i == idx && i != 0 ) {
-                                $('#chatAi').append('<br><br>'+strArr[i]);
+                                $('#chatAi').append('<br>'+strArr[i]);
                             } else {
-                                $('#chatAi').append(strArr[i]);
+                                $('#chatAi').append(strArr[i]+'<br>');
                             }
                         }
 
@@ -321,7 +322,7 @@ function getAnswer(params, type) {
                     } 
                 } else if ( type == 'ask' ) {
 			        let divAClone = elements.divADetach.clone();
-			        divAClone.find('.chat-message').text(answer);
+			        divAClone.find('.chat-message').html(answer.replace(/(?:\r\n|\r|\n)/g, '<br>'));
 			        $('#chatUl').append(divAClone);
                 }
 
@@ -483,6 +484,10 @@ function renderPDF(file) {
 function getContent(fileSeq) {
 
     const fileUrl = '/api/file/' + fileSeq;
+    // 초기화
+    $('#chatUl').children(':first-child').nextAll().remove();
+    // 질문 입력란 초기화
+    $('.ant-input').val('');
 
     fn_fetchGetBlod(fileUrl)
         .then(blob => {
@@ -517,19 +522,19 @@ function getContent(fileSeq) {
                                     spanAiClone.find('.exAsk').text(strArr[i]);
                                     $('#chatAi').append(spanAiClone);
                                 } else if ( i == idx && i != 0 ) {
-                                    $('#chatAi').append('<br><br>'+strArr[i]);
+                                    $('#chatAi').append('<br>'+strArr[i]);
                                 } else {
-                                    $('#chatAi').append(strArr[i]);
+                                    $('#chatAi').append(strArr[i]+'<br>');
                                 }
                             }
                         } 
                     } else if ( item.sender == 'assistant' ) {
                         let divAClone = elements.divADetach.clone();
-                        divAClone.find('.chat-message').text(answer);
+                        divAClone.find('.chat-message').html(answer.replace(/(?:\r\n|\r|\n)/g, '<br>'));
                         $('#chatUl').append(divAClone);
                     } else {
                         let divHClone = elements.divHDetach.clone();
-                        divHClone.find('.chat-message').text(answer);
+                        divHClone.find('.chat-message').html(answer.replace(/(?:\r\n|\r|\n)/g, '<br>'));
                         $('#chatUl').append(divHClone);
                     }
                 });
