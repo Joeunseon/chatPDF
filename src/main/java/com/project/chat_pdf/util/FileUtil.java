@@ -1,6 +1,7 @@
 package com.project.chat_pdf.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,38 +41,29 @@ public class FileUtil {
         return maxRequestSize;
     }
 
+    /**
+     * 파일 업로드
+     * @param file
+     * @return
+     * @throws Exception
+     */
     public FileInfo uploadFile(MultipartFile file) throws Exception {
 
-        if ( file == null || file.isEmpty() ) 
-            throw new Exception("[FileUtil] File blank");
+        validateFile(file);
 
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyyMM");
-        DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-
-        String basePath = uploadPath + File.separator + LocalDateTime.now().format(dateFormat);
-        
-        File strePath = new File(basePath);
-        if ( !strePath.exists() ) {
-            if ( !strePath.mkdirs() ) 
-                throw new Exception("[FileUtil.mkdirs] saveFolder : Creation Fail");
-        }
+        String basePath = getBasePath();
+        createDirectoryIfNotExists(basePath);
 
         String oriNm = file.getOriginalFilename();
+        validateFilename(oriNm);
 
-        if ( oriNm.isBlank() )
-            throw new Exception("[FileUtil] File blank");
-
-        String extsn = oriNm.substring(oriNm.lastIndexOf(".") + 1);
-        String streNm = getUniqueFileNm(LocalDateTime.now().format(dateTimeFormat) + "." + extsn, basePath);
+        String extsn = getFileExtension(oriNm);
+        String streNm = getUniqueFileNm(generateTimestampedFileName(extsn), basePath);
         
         Path filePath = Paths.get(basePath, streNm);
-        try {
-            Files.copy(file.getInputStream(), filePath);
-        } catch (IOException e) {
-            log.error("[FileUtil.uploadFile]");
-            e.printStackTrace();
-            throw new Exception("[FileUtil.uploadFile] saveFile : creation Fail");
-        }
+        
+        // 파일 업로드
+        saveFile(file, filePath);
 
         FileCreateDTO createDTO = FileCreateDTO.builder()
                                     .streNm(streNm)
@@ -84,7 +76,60 @@ public class FileUtil {
         return createDTO.toEntity();
     }
 
-    public String getUniqueFileNm(String fileNm, String basePath) {
+    /**
+     * 파일 다운로드
+     * @param strePath
+     * @param strNm
+     * @return
+     * @throws Exception
+     */
+    public Resource downloadFile(String strePath, String strNm) throws Exception {
+
+        // 파일 경로 설정
+        String filePath = strePath + File.separator + strNm;
+
+        Path path = Paths.get(filePath);
+        if (!Files.exists(path) || !Files.isReadable(path)) {
+            log.error("[FileUtil.downloadFile] File not found or unreadable: {}", filePath);
+            throw new FileNotFoundException("[FileUtil.downloadFile] File not found: " + filePath);
+        }
+
+        return new InputStreamResource(Files.newInputStream(path));
+    }
+
+    private void validateFile(MultipartFile file) throws Exception {
+        if (file == null || file.isEmpty()) 
+            throw new IllegalArgumentException("[FileUtil] File is blank");
+    }
+
+    private String getBasePath() {
+        String datePath = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
+        return uploadPath + File.separator + datePath;
+    }
+
+    private void createDirectoryIfNotExists(String basePath) throws Exception {
+        File directory = new File(basePath);
+        if ( !directory.exists() && !directory.mkdirs() )
+            throw new IOException("[FileUtil] Failed to create directory: " + basePath);
+        
+    }
+
+    private void validateFilename(String filename) throws Exception {
+        if (filename == null || filename.isBlank()) {
+            throw new IllegalArgumentException("[FileUtil] File name is blank");
+        }
+    }
+
+    private String getFileExtension(String filename) {
+        return filename.substring(filename.lastIndexOf(".") + 1);
+    }
+
+    private String generateTimestampedFileName(String extension) {
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        return timestamp + "." + extension;
+    }
+
+    private String getUniqueFileNm(String fileNm, String basePath) {
         File file = new File(basePath, fileNm);
 
         if ( !file.exists() )
@@ -93,27 +138,20 @@ public class FileUtil {
         int cnt = 0;
         String baseNm = fileNm.substring(0, fileNm.lastIndexOf("."));
         String extsn = fileNm.substring(fileNm.lastIndexOf("."));
-        do {
+        while (file.exists()) {
             cnt++;
             file = new File(basePath, baseNm + "_" + cnt + extsn);
-        } while (file.exists());
+        }
 
         return file.getName();
     }
 
-    public Resource downloadFile(String strePath, String strNm) throws Exception {
-
-        // 파일 경로 설정
-        String filePath = strePath + File.separator + strNm;
-
-        Path path = Paths.get(filePath);
-        Resource resource = new InputStreamResource(Files.newInputStream(path));
-
-        if ( resource.exists() && resource.isReadable() ) {
-            return resource;
-        } else {
-            log.info("[fileUtils.downloadFile] NOT_FOUND : " + filePath);
-            return null;
+    private void saveFile(MultipartFile file, Path filePath) throws Exception {
+        try {
+            Files.copy(file.getInputStream(), filePath);
+        } catch (IOException e) {
+            log.error("[FileUtil.saveFile] Failed to save file: {}", filePath, e);
+            throw new IOException("[FileUtil.saveFile] File save failed: " + filePath, e);
         }
     }
 }

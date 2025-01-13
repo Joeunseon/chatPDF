@@ -1,14 +1,12 @@
 package com.project.chat_pdf.api.file.application;
 
 import java.io.File;
-import java.net.URLEncoder;
-import java.util.HashMap;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,87 +40,98 @@ public class FileService {
     private final ChatRoomMapper chatRoomMapper;
 
     /**
-     * property file size 취득
+     * Get multipart configuration
      * @return
      */
-    public ResponseEntity<Map<String, Object>> getMultipartConfig() {
-        Map<String, Object> map = new HashMap<String, Object>();
-        
-        map.put("maxFileSize", fileUtil.getMaxFileSize());
-        map.put("maxRequestSize", fileUtil.getMaxRequestSize());
-
-        log.info("file property: " + map.toString());
-
-        return ResponseEntity.ok().body(map);
+    public Map<String, Object> getMultipartConfig() {
+        return Map.of(
+            "maxFileSize", fileUtil.getMaxFileSize(),
+            "maxRequestSize", fileUtil.getMaxRequestSize()
+        );
     }
 
+    /**
+     * 파일 업로드 및 데이터베이스 반영
+     * @param file
+     * @return
+     */
     public JsonNode create(MultipartFile file) {
         
         try {
-            // file upload
-            FileInfo create = fileUtil.uploadFile(file);
+            // 1. 파일 저장 및 데이터베이스 반영
+            FileInfo fileInfo = saveFileToDatabase(file);
             
-            // file create
-            fileMapper.create(create);
+            // 2. 임시 파일 생성
+            File tempFile = createTempFile(file);
             
-            File tempFile = File.createTempFile("upload-", file.getOriginalFilename());
+            // 3. 외부 API 호출 및 응답 처리
+            JsonNode jsonNode =processFileWithExternalService(tempFile);
 
-            // MultipartFile의 내용을 File로 전송
-            file.transferTo(tempFile);
-
-            // JVM 종료 시 임시 파일 삭제
-            tempFile.deleteOnExit();
-            
-            JsonNode jsonNode = ResponseProcessorUtil.processResponse(chatPdfUtil.addPDFFile(tempFile), "[FileService.addPDFFile]");
+            // 4. 채팅방 데이터베이스 반영
             String apiId = jsonNode.get("sourceId").asText();
-
             ChatRoomCreateDTO roomCreateDTO = ChatRoomCreateDTO.builder()
-                                                .fileSeq(create.getFileSeq())
+                                                .fileSeq(fileInfo.getFileSeq())
                                                 .apiId(apiId)
-                                                .title(create.getOriNm())
+                                                .title(fileInfo.getOriNm())
                                                 .delYn(DelYn.N)
                                                 .build();
             
             ChatRoom chatRoom = roomCreateDTO.toEntity();
             chatRoomMapper.create(chatRoom);
 
+            // 5. JSON 응답에 추가 데이터 포함
             ObjectNode objectNode = (ObjectNode) jsonNode;
-
             objectNode.put("roomSeq", chatRoom.getRoomSeq());
-
             return objectNode;
 
+        } catch (IOException e) {
+            log.error("[FileService.create]: File IO error", e);
+            throw new RuntimeException("File processing error", e);
         } catch (Exception e) {
-            log.error("[FileService.create]: ");
-            e.printStackTrace();
-            return null;
+            log.error("[FileService.create]: Unexpected error", e);
+            throw new RuntimeException("Unexpected error occurred", e);
         }
 
     }
 
-    public ResponseEntity<Resource> findById(Long fileSeq) {
+    /**
+     * 파일 취득
+     * @param fileSeq
+     * @return
+     * @throws FileNotFoundException
+     * @throws Exception
+     */
+    public Resource findById(Long fileSeq) throws FileNotFoundException, Exception {
+        FileDTO fileDTO = fileMapper.findById(fileSeq);
 
-        try {
-            FileDTO dto = fileMapper.findById(fileSeq);
-
-            if ( StringUtils.isNotBlank(dto.getPath()) && StringUtils.isNotBlank(dto.getStreNm()) ) {
-                Resource resource = fileUtil.downloadFile(dto.getPath(), dto.getStreNm());
-
-                if ( resource != null ) {
-                    HttpHeaders headers = new HttpHeaders();
-                    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" 
-                        + URLEncoder.encode((StringUtils.isNotBlank(dto.getOriNm()) ? dto.getOriNm() : dto.getStreNm()), "UTF-8"));
-
-                    return ResponseEntity.ok().headers(headers).body(resource);
-                }
-            } 
-            
-            return ResponseEntity.notFound().build();
-            
-        } catch (Exception e) {
-            log.error("[fileService.findById]: ");
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().build();
+        if ( fileDTO == null || StringUtils.isBlank(fileDTO.getPath()) || StringUtils.isBlank(fileDTO.getStreNm()) ) {
+            throw new FileNotFoundException("File not found with ID: " + fileSeq);
         }
+
+        Resource resource = fileUtil.downloadFile(fileDTO.getPath(), fileDTO.getStreNm());
+        if ( resource == null ) {
+            throw new FileNotFoundException("Resource not found for file ID: " + fileSeq);
+        }
+
+        return resource;
+    }
+
+    private FileInfo saveFileToDatabase(MultipartFile file) throws Exception {
+        FileInfo fileInfo = fileUtil.uploadFile(file);
+        fileMapper.create(fileInfo);
+        return fileInfo;
+    }
+
+    private File createTempFile(MultipartFile file) throws IOException {
+        File tempFile = File.createTempFile("upload-", file.getOriginalFilename());
+        file.transferTo(tempFile);
+        tempFile.deleteOnExit();
+        return tempFile;
+    }
+
+    private JsonNode processFileWithExternalService(File tempFile) throws IOException {
+        return ResponseProcessorUtil.processResponse(
+            chatPdfUtil.addPDFFile(tempFile), "[FileService.addPDFFile]"
+        );
     }
 }
