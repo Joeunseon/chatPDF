@@ -39,6 +39,14 @@
             )
     </insert>
 
+    <update id="update">
+        /* ChatRoom.update */
+        UPDATE chat_room
+        SET title = #{title}
+            , upd_dt = now()
+        WHERE room_seq = #{roomSeq}
+    </update>
+
     <update id="delete">
         /* ChatRoom.delete */
         UPDATE chat_room

@@ -139,8 +139,19 @@ function roomsInit() {
                         // 입력창 포커스를 잃었을 때 처리
                         input.on('blur', () => {
                             const newTitle = input.val().trim() || currentTitle; // 입력값 없을 시 기존 제목 유지
-                            input.replaceWith(`<span style="color: white;">${newTitle}</span>`);
-                            item.title = newTitle; // 데이터 업데이트
+
+                            if ( newTitle != currentTitle ) {
+                                updRoom(item.roomSeq, newTitle, isUpdated => {
+                                    if ( isUpdated ) {
+                                        input.replaceWith(`<span style="color: white;">${newTitle}</span>`);
+                                        item.title = newTitle; // 데이터 업데이트
+                                    }
+                                });
+                            } else {
+                                input.replaceWith(`<span style="color: white;">${newTitle}</span>`);
+                                item.title = newTitle; // 데이터 업데이트
+                            }
+
                         });
                     });
 
@@ -273,7 +284,7 @@ function getAnswer(params, type) {
     const url = '/api/chat';
 
     const header = {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
     };
 
     fn_fetchPostData(url, JSON.stringify(params), header)
@@ -536,6 +547,31 @@ function getContent(fileSeq) {
 
         })
         .catch(fn_handleError);
+}
+
+function updRoom(roomSeq, title, callback) {
+    const url = '/api/room';
+
+    const header = {
+        'Content-Type': 'application/json',
+    };
+
+    let params = {
+        "roomSeq": roomSeq,
+        "title": title
+    };
+
+    fn_fetchPatchData(url, JSON.stringify(params), header)
+        .then(data => {
+            if ( !data ) 
+                alert('ERROR');
+            
+            callback(data);
+        })
+        .catch(error => {
+            fn_handleError(error);
+            callback(false);
+        });
 }
 
 function delRoom(roomSeq, callback) {

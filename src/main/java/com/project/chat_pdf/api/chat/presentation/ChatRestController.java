@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.project.chat_pdf.api.chat.application.ChatService;
 import com.project.chat_pdf.api.chat.application.dto.ChatMsgCreateDTO;
+import com.project.chat_pdf.api.chat.application.dto.ChatRoomUpdateDTO;
 import com.project.chat_pdf.util.ControllerUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,6 +50,12 @@ public class ChatRestController {
             
             return chatService.sendMessage(createDTO);
         });
+    }
+
+    @PatchMapping("/room")
+    public ResponseEntity<Boolean> update(@RequestBody ChatRoomUpdateDTO updateDTO) {
+
+        return chatService.update(updateDTO);
     }
     
     @DeleteMapping("/room/{roomSeq}")
