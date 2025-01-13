@@ -16,37 +16,37 @@ import lombok.NoArgsConstructor;
 public class ChatMsgCreateDTO {
 
     // @Id
-    // 채팅SEQ
-    private Long chatSeq;
+    // 메시지SEQ
+    private Long msgSeq;
 
     // @Id
     // 채팅방SEQ
     private Long roomSeq;
+    
+    // 보낸유형 (FIRST/OTHER)
+    private SendType sendType;
 
     // 보낸사람 (user/assistant)
     private Sender sender;
 
-    // 보낸 유형 (FIRST/OTHER)
-    private SendType sendType;
-
-    // 채팅내용
+    // 메시지내용
     private String content;
 
-    // 채팅순서
-    private int order;
+    // 메시지순서
+    private int sequence;
 
     // 등록일시
     private String regDt;
 
     private String apiId;
 
-    public ChatMsg toEntity(String content, Sender sender, int order) {
+    public ChatMsg toEntity(String content, Sender sender, int sequence) {
         return ChatMsg.builder()
                 .roomSeq(roomSeq)
-                .sender(sender)
                 .sendType(sendType)
+                .sender(sender)
                 .content(content)
-                .order(order)
+                .sequence(sequence)
                 .build();
     }
 }

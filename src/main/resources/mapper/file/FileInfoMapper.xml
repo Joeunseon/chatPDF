@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.project.chat_pdf.api.file.infrastructure.FileMapper">
+<mapper namespace="com.project.chat_pdf.api.file.infrastructure.FileInfoMapper">
 
     <select id="findById" resultType="FileDTO">
-        /* File.findById */
+        /* FileInfo.findById */
         SELECT stre_nm
                , ori_nm
                , path
-        FROM file
+        FROM file_info
         WHERE file_seq = #{fileSeq}
     </select>
 
     <insert id="create" keyProperty="fileSeq" useGeneratedKeys="true">
-        /* File.create */
+        /* FileInfo.create */
         INSERT 
-        INTO file
+        INTO file_info
             (
                 stre_nm,
                 ori_nm,

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.project.chat_pdf.api.file.application.dto.FileCreateDTO;
+import com.project.chat_pdf.api.file.domain.FileInfo;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,7 +40,7 @@ public class FileUtil {
         return maxRequestSize;
     }
 
-    public com.project.chat_pdf.api.file.domain.File uploadFile(MultipartFile file) throws Exception {
+    public FileInfo uploadFile(MultipartFile file) throws Exception {
 
         if ( file == null || file.isEmpty() ) 
             throw new Exception("[FileUtil] File blank");

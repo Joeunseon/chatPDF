@@ -15,9 +15,11 @@
                , file_seq
                , api_id
                , title
-        FROM chat_room
+               , upd_dt
+               , (SELECT MAX(reg_dt) FROM chat_msg cm WHERE cm.room_seq = cr.room_seq) AS msg_dt
+        FROM chat_room cr
         WHERE del_yn = 'N'
-        ORDER BY upd_dt DESC;
+        ORDER BY upd_dt DESC, msg_dt DESC
     </select>
 
     <insert id="create" keyProperty="roomSeq" useGeneratedKeys="true">

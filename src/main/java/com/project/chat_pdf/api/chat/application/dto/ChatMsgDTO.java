@@ -9,16 +9,16 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class ChatMsgDTO {
+    
+    // 보낸 유형 (FIRST/OTHER)
+    private SendType sendType;
 
     // 보낸사람 (user/assistant)
     private Sender sender;
 
-    // 보낸 유형 (FIRST/OTHER)
-    private SendType sendType;
-
-    // 채팅내용
+    // 메시지내용
     private String content;
 
-    // 채팅순서
-    private int order;
+    // 메시지순서
+    private int sequence;
 }

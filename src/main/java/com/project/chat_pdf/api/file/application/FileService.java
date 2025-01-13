@@ -19,7 +19,8 @@ import com.project.chat_pdf.api.chat.domain.ChatRoom;
 import com.project.chat_pdf.api.chat.infrastructure.ChatRoomMapper;
 import com.project.chat_pdf.api.chat.value.DelYn;
 import com.project.chat_pdf.api.file.application.dto.FileDTO;
-import com.project.chat_pdf.api.file.infrastructure.FileMapper;
+import com.project.chat_pdf.api.file.domain.FileInfo;
+import com.project.chat_pdf.api.file.infrastructure.FileInfoMapper;
 import com.project.chat_pdf.util.ChatPdfUtil;
 import com.project.chat_pdf.util.FileUtil;
 import com.project.chat_pdf.util.ResponseProcessorUtil;
@@ -36,7 +37,7 @@ public class FileService {
 
     private final ChatPdfUtil chatPdfUtil;
 
-    private final FileMapper fileMapper;
+    private final FileInfoMapper fileMapper;
 
     private final ChatRoomMapper chatRoomMapper;
 
@@ -59,7 +60,7 @@ public class FileService {
         
         try {
             // file upload
-            com.project.chat_pdf.api.file.domain.File create = fileUtil.uploadFile(file);
+            FileInfo create = fileUtil.uploadFile(file);
             
             // file create
             fileMapper.create(create);

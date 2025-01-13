@@ -3,12 +3,12 @@ package com.project.chat_pdf.api.file.infrastructure;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.project.chat_pdf.api.file.application.dto.FileDTO;
-import com.project.chat_pdf.api.file.domain.File;
+import com.project.chat_pdf.api.file.domain.FileInfo;
 
 @Mapper
-public interface FileMapper {
+public interface FileInfoMapper {
 
     public FileDTO findById(Long fileSeq);
 
-    public Long create(File file);
+    public Long create(FileInfo file);
 }
