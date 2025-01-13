@@ -97,16 +97,30 @@ public class FileUtil {
         return new InputStreamResource(Files.newInputStream(path));
     }
 
+    /**
+     * 파일 유효성확인
+     * @param file
+     * @throws Exception
+     */
     private void validateFile(MultipartFile file) throws Exception {
         if (file == null || file.isEmpty()) 
             throw new IllegalArgumentException("[FileUtil] File is blank");
     }
 
+    /**
+     * 기존 저장경로 취득 (년월)
+     * @return
+     */
     private String getBasePath() {
         String datePath = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
         return uploadPath + File.separator + datePath;
     }
 
+    /**
+     * 디렉토리 생성 및 확인
+     * @param basePath
+     * @throws Exception
+     */
     private void createDirectoryIfNotExists(String basePath) throws Exception {
         File directory = new File(basePath);
         if ( !directory.exists() && !directory.mkdirs() )
@@ -114,21 +128,42 @@ public class FileUtil {
         
     }
 
+    /**
+     * 파일명 유효성검사
+     * @param filename
+     * @throws Exception
+     */
     private void validateFilename(String filename) throws Exception {
         if (filename == null || filename.isBlank()) {
             throw new IllegalArgumentException("[FileUtil] File name is blank");
         }
     }
 
+    /**
+     * 확장자 취득
+     * @param filename
+     * @return
+     */
     private String getFileExtension(String filename) {
         return filename.substring(filename.lastIndexOf(".") + 1);
     }
 
+    /**
+     * 저장 파일명 취득(날짜_시간)
+     * @param extension
+     * @return
+     */
     private String generateTimestampedFileName(String extension) {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         return timestamp + "." + extension;
     }
 
+    /**
+     * 유니크 파일명 취득
+     * @param fileNm
+     * @param basePath
+     * @return
+     */
     private String getUniqueFileNm(String fileNm, String basePath) {
         File file = new File(basePath, fileNm);
 
@@ -146,6 +181,12 @@ public class FileUtil {
         return file.getName();
     }
 
+    /**
+     * 파일 저장
+     * @param file
+     * @param filePath
+     * @throws Exception
+     */
     private void saveFile(MultipartFile file, Path filePath) throws Exception {
         try {
             Files.copy(file.getInputStream(), filePath);
