@@ -4,7 +4,7 @@
 
     <select id="countAll" resultType="Integer">
         /* ChatMsg.countAll */
-        SELECT COUNT(chat_seq)
+        SELECT COUNT(msg_seq)
         FROM chat_msg
         WHERE room_seq = #{roomSeq}
     </select>
@@ -14,15 +14,15 @@
         SELECT sender
                , send_type
                , content
-               , `order`
+               , sequence
         FROM chat_msg
         WHERE room_seq = #{roomSeq}
-        ORDER BY `order` ASC
+        ORDER BY sequence ASC
     </select>
 
     <select id="findNextOrder" resultType="Integer">
         /* ChatMsg.findNextOrder */
-        SELECT COALESCE(MAX(`order`), 0) + 1
+        SELECT COALESCE(MAX(sequence), 0) + 1
         FROM chat_msg
         WHERE room_seq = #{roomSeq}
     </select>
@@ -33,18 +33,18 @@
         INTO chat_msg
             (
                 room_seq,
-                sender,
                 send_type,
+                sender,
                 content,
-                `order`
+                sequence
             )
         VALUES
             (
                 #{roomSeq},
-                #{sender},
                 #{sendType},
+                #{sender},
                 #{content},
-                #{order}
+                #{sequence}
             )
     </insert>
 

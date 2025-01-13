@@ -1,6 +1,6 @@
 package com.project.chat_pdf.api.file.application.dto;
 
-import com.project.chat_pdf.api.file.domain.File;
+import com.project.chat_pdf.api.file.domain.FileInfo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,8 +35,8 @@ public class FileCreateDTO {
     // 등록일시
     private String regDt;
 
-    public File toEntity() {
-        return File.builder()
+    public FileInfo toEntity() {
+        return FileInfo.builder()
                 .streNm(streNm)
                 .oriNm(oriNm)
                 .path(path)

@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class File {
+public class FileInfo {
 
     // @Id
     // 파일SEQ
@@ -31,7 +31,7 @@ public class File {
     private String regDt;
 
     @Builder
-    public File(Long fileSeq, String streNm, String oriNm, String path, String extsn, Long size, String regDt) {
+    public FileInfo(Long fileSeq, String streNm, String oriNm, String path, String extsn, Long size, String regDt) {
 
         this.fileSeq = fileSeq;
         this.streNm = streNm;
