@@ -98,6 +98,22 @@ public class FileUtil {
     }
 
     /**
+     * 파일 삭제
+     * @param strePath
+     * @param strNm
+     */
+    public void deleteFile(String strePath, String strNm) {
+        String filePath = strePath + File.separator + strNm;
+
+        Path path = Paths.get(filePath);
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            log.error("Failed to delete file: " + strNm, e);
+        }
+    }
+
+    /**
      * 파일 유효성확인
      * @param file
      * @throws Exception
