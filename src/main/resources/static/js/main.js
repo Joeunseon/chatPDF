@@ -36,7 +36,9 @@ $(document).ready(function () {
     bindEventListeners();
 });
 
-// 이벤트 리스너 바인딩
+/**
+ * 이벤트 리스너 바인딩
+ */
 function bindEventListeners() {
     // 파일 업로드시
     $('#inputFile').on('change', function() {
@@ -58,7 +60,9 @@ function bindEventListeners() {
     });
 }
 
-// 파일 설정
+/**
+ * 파일 설정
+ */
 function fileInit() {
     fn_fetchGetData(API_ENDPOINTS.fileConfig)
         .then(data => {
@@ -68,7 +72,9 @@ function fileInit() {
         .catch(fn_handleError);
 }
 
-// 채팅방 초기화
+/**
+ * 채팅방 초기화
+ */
 function roomsInit() {
     $('.chat-rooms').empty();
 
@@ -81,7 +87,10 @@ function roomsInit() {
         .catch(fn_handleError);
 }
 
-// 채팅방 렌더링
+/**
+ * 채팅방 렌더링
+ * @param {Object} roomList - 채팅방 데이터 리스트
+ */
 function renderChatRooms(roomList) {
     roomList.forEach(item => {
         const roomElement = createRoomElement(item);
@@ -89,7 +98,11 @@ function renderChatRooms(roomList) {
     });
 }
 
-// 채팅방 요소 생성
+/**
+ * 채팅방 요소 생성
+ * @param {Object} item - 채팅방 데이터
+ * @returns 채팅방 요소
+ */
 function createRoomElement(item) {
     let roomClone = elements.chatRoomDetach.clone();
 
@@ -113,7 +126,10 @@ function createRoomElement(item) {
     return roomClone;
 }
 
-// 채팅방 클릭시 처리
+/**
+ * 채팅방 클릭시 처리
+ * @param {Object} item - 채팅방 데이터
+ */
 function handleRoomClick(item) {
     // 데이터 설정
     $('.divMiddle').find('h1').text(item.title);
@@ -129,7 +145,11 @@ function handleRoomClick(item) {
     getContent(item.fileSeq);
 }
 
-// 채팅방 옵션 메뉴 토글
+/**
+ * 채팅방 옵션 메뉴 토글
+ * @param {Event} e 
+ * @param {Element} roomClone - 채팅방 요소
+ */
 function toggleOptionsMenu(e, roomClone) {
     // 이벤트 버블링 방지
     e.stopPropagation();
@@ -151,7 +171,12 @@ function toggleOptionsMenu(e, roomClone) {
     });
 }
 
-// 채팅방 업데이트
+/**
+ * 채팅방 수정
+ * @param {Event} e 
+ * @param {Element} roomClone - 채팅방 요소
+ * @param {Object} item - 채팅방 데이터
+ */
 function handleRoomUpdate(e, roomClone, item) {
     // 이벤트 버블링 방지
     e.stopPropagation();
@@ -184,7 +209,12 @@ function handleRoomUpdate(e, roomClone, item) {
     });
 }
 
-// 채팅방 삭제
+/**
+ * 채팅방 삭제
+ * @param {Event} e 
+ * @param {Element} roomClone - 채팅방 요소
+ * @param {number} roomSeq - 채팅방 SEQ
+ */
 function handleRoomDelete(e, roomClone, roomSeq) {
     // 이벤트 버블링 방지
     e.stopPropagation();
@@ -197,7 +227,10 @@ function handleRoomDelete(e, roomClone, roomSeq) {
     }
 }
 
-// 파일 업로드시
+/**
+ * 파일 업로드시
+ * @param {Obejct} fileObject - 파일 데이터
+ */
 function uploadFile(fileObject) {
     const file = fileObject[0];
     const fileName = file.name;
@@ -232,7 +265,10 @@ function uploadFile(fileObject) {
     fileUpload(file);
 }
 
-// 파일 업로드
+/**
+ * 파일 업로드
+ * @param {Object} file - 파일 데이터
+ */
 function fileUpload(file) {
     // id 초기화
 	$('#sourceId').val('');
@@ -257,7 +293,9 @@ function fileUpload(file) {
         .catch(fn_handleError);
 }
 
-// 초기 질문 생성
+/**
+ * 초기 질문 생성
+ */
 function firstAskAi() {
     restChatUI();
 
@@ -280,7 +318,11 @@ function firstAskAi() {
 	getAnswer(params, 'first');
 }
 
-// 답변 취득
+/**
+ * ChatPDF 답변 요청 처리
+ * @param {Object} params - 요청 파라미터
+ * @param {string} type - 요청 타입 ('first' 또는 'ask')
+ */
 function getAnswer(params, type) {
     const header = {'Content-Type': 'application/json'};
 
@@ -289,7 +331,11 @@ function getAnswer(params, type) {
         .catch(fn_handleError);
 }
 
-// 답변 처리
+/**
+ * 답변 처리
+ * @param {Object} data - API 응답 데이터
+ * @param {string} type - 요청 타입 ('first' 또는 'ask')
+ */
 function processAnswerResponse(data, type) {
     const answer = data.content;
 
@@ -307,7 +353,10 @@ function processAnswerResponse(data, type) {
     }
 }
 
-// 초기 질문에 대한 답변 처리
+/**
+ * 초기 질문에 대한 답변 처리
+ * @param {string} answer - ChatPDF 응답
+ */
 function processFirstAnswer(answer) {
     const lines = answer.split('\n');
     let exampleStartIndex = lines.length;
@@ -348,7 +397,10 @@ function appendAnswerToChat(answer) {
 	$('#chatUl').append(divAClone);
 }
 
-// 예시 질문 클릭시
+/**
+ * 예시 질문 클릭시
+ * @param {HTMLElement} el - 클릭된 요소
+ */
 function exAsk(el) {
     const content = $(el).closest('.spanAi').find('.exAsk').text().trim();
     const sourceId = $('#sourceId').val();
@@ -388,7 +440,9 @@ function appendQuestionToChat(content) {
     $('#chatUl').append(divHClone);
 }
 
-// 사용자 질문
+/**
+ * 사용자 질문 처리
+ */
 function askAi() {
     const sourceId = $('#sourceId').val();
     const roomSeq = $('#roomSeq').val();
@@ -425,13 +479,18 @@ function askAi() {
     getAnswer(params, 'ask');
 }
 
-// 챗 로딩
+/**
+ * 챗 로딩
+ */
 function chatLoading() {
     const divLClone = elements.divLDetach.clone();
     $('#chatUl').append(divLClone);
 }
 
-// pdf 뷰어
+/**
+ * PDF veiwer
+ * @param {Object} file 
+ */
 function renderPDF(file) {
     let fileReader = new FileReader();
 
@@ -498,6 +557,10 @@ function renderPDF(file) {
     fileReader.readAsArrayBuffer(file);
 }
 
+/**
+ * 파일 및 메시지 내용 가져오기
+ * @param {number} fileSeq - 파일 SEQ
+ */
 function getContent(fileSeq) {
     // 초기화
     restChatUI();
@@ -515,7 +578,9 @@ function getContent(fileSeq) {
         .catch(fn_handleError);
 }
 
-// 채팅 UI 초기화
+/**
+ * 채팅 UI 초기화
+ */
 function restChatUI() {
     // 초기화
     $('#chatUl').children(':first-child').nextAll().remove();
@@ -600,7 +665,9 @@ function delRoom(roomSeq, callback) {
         });
 }
 
-// 채팅 UI 초기화
+/**
+ * 채팅 초기화
+ */
 function resetChatView() {
     $('.divMiddle').hide();
     $('.divRight').hide();
