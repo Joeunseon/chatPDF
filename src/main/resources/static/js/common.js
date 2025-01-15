@@ -13,6 +13,11 @@ function fn_fetchRequest(url, options = {}) {
         'Content-Type': 'application/json',
     };
 
+    // FormData 사용 시 Content-Type 제거
+    if (options.body instanceof FormData) {
+        delete defaultHeaders['Content-Type'];
+    }
+
     // 옵션에 헤더 병합
     options.headers = { ...defaultHeaders, ...options.headers };
 
