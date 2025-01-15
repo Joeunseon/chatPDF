@@ -1,6 +1,18 @@
 /**
- * main.js
+ * main.js - Chat Room Application
  */
+
+// url 관리
+const API_ENDPOINTS = {
+    fileConfig: '/api/file/config',
+    rooms: '/api/rooms',
+    fileUpload: '/api/file',
+    fileDownload: '/api/file/',
+    chat: '/api/chat',
+    messages: '/api/msgs/',
+    updateRoom: '/api/room',
+    deleteRoom: '/api/room/',
+};
 
 // Element detach 관리
 const elements = {
@@ -42,14 +54,9 @@ $(document).ready(function () {
 
 });
 
-/**
- * 파일 init
- * properties에 설정된 maxRequestSize, maxFileSize 취득
- */
+// 파일 설정
 function fileInit() {
-    const url = '/api/file/config';
-
-    fn_fetchGetData(url)
+    fn_fetchGetData(API_ENDPOINTS.fileConfig)
         .then(data => {
             maxRequestSize = data.maxRequestSize;
             maxFileSize = maxFileSize;
@@ -57,123 +64,133 @@ function fileInit() {
         .catch(fn_handleError);
 }
 
+// 채팅방 초기화
 function roomsInit() {
-    const url = '/api/rooms';
     $('.chat-rooms').empty();
 
-    fn_fetchGetData(url)
+    fn_fetchGetData(API_ENDPOINTS.rooms)
         .then(data => {
             if ( data.resultCnt > 0 ) {
-                data.resultList.forEach(item => {
-                    let divClone = elements.chatRoomDetach.clone();
-
-                    divClone.find('span').text(item.title);
-
-                    // 채팅방 클릭시
-                    divClone.on('click', () => {
-                        // 데이터 설정
-                        $('.divMiddle').find('h1').text(item.title);
-                        $('#sourceId').val(item.apiId);
-                        $('#roomSeq').val(item.roomSeq);
-
-                        // 파일 뷰어 페이지 초기화
-                        $('#pdfContainer').empty();
-                        // 전체 화면 로딩 
-                        $('#loadingDiv').show();
-
-                        // 채팅방 내용 가져오기
-                        getContent(item.fileSeq);
-                    });
-
-                    // 옵션 버튼 클릭시
-                    divClone.find('.options-button').on('click', (e) => {
-                        // 이벤트 버블링 방지
-                        e.stopPropagation();
-
-                        //divClone.find('.options-menu').show();
-                        const menu = divClone.find('.options-menu');
-
-                        // 기존 열린 메뉴 닫기
-                        $('.options-menu').not(menu).hide();
-
-                        // 현재 메뉴 토글
-                        menu.toggle();
-
-                        // 메뉴 외부 클릭 시 닫기
-                        $(document).on('mousedown.options-menu', (event) => {
-                            if (!$(event.target).closest(menu).length && !$(event.target).is('.options-button')) {
-                                menu.hide();
-                                $(document).off('mousedown.options-menu'); // 이벤트 해제
-                            }
-                        });
-                    });
-
-                    // 옵션 메뉴 버튼 클릭시
-                    divClone.find('.options-menu').on('click', (e) => {
-                        // 이벤트 버블링 방지
-                        e.stopPropagation();
-                    });
-
-                    divClone.find('.options-upd').on('click', (e) => {
-                        // 이벤트 버블링 방지
-                        e.stopPropagation();
-
-                        const titleElement = divClone.find('span');
-                        const currentTitle = titleElement.text();
-
-                        // 이름 변경을 위한 입력창 생성
-                        const input = $('<input type="text" class="title-input">')
-                            .val(currentTitle)
-                            .css({
-                                width: '100%',
-                                padding: '4px',
-                                boxSizing: 'border-box',
-                            });
-
-                        // 기존 제목을 입력창으로 변경
-                        titleElement.replaceWith(input);
-                        input.focus();
-
-                        // 이벤트 버블링 방지
-                        input.on('click', (e) => e.stopPropagation());
-
-                        // 입력창 포커스를 잃었을 때 처리
-                        input.on('blur', () => {
-                            const newTitle = input.val().trim() || currentTitle; // 입력값 없을 시 기존 제목 유지
-
-                            if ( newTitle != currentTitle ) {
-                                updRoom(item.roomSeq, newTitle, isUpdated => {
-                                    if ( isUpdated ) {
-                                        input.replaceWith(`<span style="color: white;">${newTitle}</span>`);
-                                        item.title = newTitle; // 데이터 업데이트
-                                    }
-                                });
-                            } else {
-                                input.replaceWith(`<span style="color: white;">${newTitle}</span>`);
-                                item.title = newTitle; // 데이터 업데이트
-                            }
-
-                        });
-                    });
-
-                    // 삭제 버튼 클릭시
-                    divClone.find('.options-del').on('click', (e) => {
-                        // 이벤트 버블링 방지
-                        e.stopPropagation();
-
-                        if ( confirm('해당 채팅방을 삭제하시겠습니까?') ) {
-                            delRoom(item.roomSeq, isDeleted => {
-                                if (isDeleted) 
-                                    divClone.remove();
-                            });
-                        }
-                    });
-                    
-                    $('.chat-rooms').append(divClone);
-                });
+                renderChatRooms(data.resultList);
             }
         })
         .catch(fn_handleError);
+}
+
+// 채팅방 렌더링
+function renderChatRooms(roomList) {
+    roomList.forEach(item => {
+        const roomElement = createRoomElement(item);
+        $('.chat-rooms').append(roomElement);
+    });
+}
+
+// 채팅방 요소 생성
+function createRoomElement(item) {
+    let roomClone = elements.chatRoomDetach.clone();
+
+    roomClone.find('span').text(item.title);
+
+    // 채팅방 클릭시
+    roomClone.on('click', () => handleRoomClick(item));
+
+    // 옵션 버튼 클릭시
+    roomClone.find('.options-button').on('click', (e) => toggleOptionsMenu(e, roomClone));
+
+    // 옵션 메뉴 버튼 클릭시
+    roomClone.find('.options-menu').on('click', (e) => e.stopPropagation());
+
+    // 옵션 메뉴 수정버튼 클릭시
+    roomClone.find('.options-upd').on('click', (e) => handleRoomUpdate(e, roomClone, item));
+
+    // 삭제 버튼 클릭시
+    roomClone.find('.options-del').on('click', (e) => handleRoomDelete(e, roomClone, item.roomSeq));
+    
+    return roomClone;
+}
+
+// 채팅방 클릭시 처리
+function handleRoomClick(item) {
+    // 데이터 설정
+    $('.divMiddle').find('h1').text(item.title);
+    $('#sourceId').val(item.apiId);
+    $('#roomSeq').val(item.roomSeq);
+
+    // 파일 뷰어 페이지 초기화
+    $('#pdfContainer').empty();
+    // 전체 화면 로딩 
+    $('#loadingDiv').show();
+
+    // 채팅방 내용 가져오기
+    getContent(item.fileSeq);
+}
+
+// 채팅방 옵션 메뉴 토글
+function toggleOptionsMenu(e, roomClone) {
+    // 이벤트 버블링 방지
+    e.stopPropagation();
+
+    const menu = roomClone.find('.options-menu');
+
+    // 기존 열린 메뉴 닫기
+    $('.options-menu').not(menu).hide();
+
+    // 현재 메뉴 토글
+    menu.toggle();
+
+    // 메뉴 외부 클릭 시 닫기
+    $(document).on('mousedown.options-menu', (event) => {
+        if (!$(event.target).closest(menu).length && !$(event.target).is('.options-button')) {
+            menu.hide();
+            $(document).off('mousedown.options-menu'); // 이벤트 해제
+        }
+    });
+}
+
+// 채팅방 업데이트
+function handleRoomUpdate(e, roomClone, item) {
+    // 이벤트 버블링 방지
+    e.stopPropagation();
+
+    const currentTitle = item.title;
+    const input = $('<input type="text" class="title-input">')
+        .val(currentTitle)
+        .css({ width: '100%', padding: '4px', boxSizing: 'border-box'});
+
+    // 기존 제목을 입력창으로 변경
+    roomClone.find('span').replaceWith(input);
+    input.focus();
+    input.on('click', (e) => e.stopPropagation());
+
+    // 입력창 포커스를 잃었을 때 처리
+    input.on('blur', () => {
+        const newTitle = input.val().trim() || currentTitle; // 입력값 없을 시 기존 제목 유지
+
+        if ( newTitle != currentTitle ) {
+            updRoom(item.roomSeq, newTitle, isUpdated => {
+                if ( isUpdated ) {
+                    input.replaceWith(`<span style="color: white;">${newTitle}</span>`);
+                    item.title = newTitle; // 데이터 업데이트
+                }
+            });
+        } else {
+            input.replaceWith(`<span style="color: white;">${newTitle}</span>`);
+            item.title = newTitle; // 데이터 업데이트
+        }
+    });
+}
+
+// 채팅방 삭제
+function handleRoomDelete(e, roomClone, roomSeq) {
+    // 이벤트 버블링 방지
+    e.stopPropagation();
+
+    if ( confirm('해당 채팅방을 삭제하시겠습니까?') ) {
+        delRoom(roomSeq, isDeleted => {
+            if (isDeleted) 
+                roomClone.remove();
+        });
+    }
 }
 
 // 파일 업로드시
@@ -227,9 +244,7 @@ function fileUpload() {
     let fileInput = document.querySelector('input[type="file"]');
     formData.append('file', fileInput.files[0]);
 
-    const url = '/api/file';
-
-    fn_fetchPostData(url, formData)
+    fn_fetchPostData(API_ENDPOINTS.fileUpload, formData)
         .then(data => {
             let sourceId = data.sourceId;
             if ( sourceId != null && sourceId != '' ) {
@@ -282,13 +297,11 @@ function firstAskAi() {
 // 답변 취득
 function getAnswer(params, type) {
 
-    const url = '/api/chat';
-
     const header = {
         'Content-Type': 'application/json'
     };
 
-    fn_fetchPostData(url, JSON.stringify(params), header)
+    fn_fetchPostData(API_ENDPOINTS.chat, params, header)
         .then(data => {
             let answer = data.content;
 
@@ -483,13 +496,12 @@ function renderPDF(file) {
 
 function getContent(fileSeq) {
 
-    const fileUrl = '/api/file/' + fileSeq;
     // 초기화
     $('#chatUl').children(':first-child').nextAll().remove();
     // 질문 입력란 초기화
     $('.ant-input').val('');
 
-    fn_fetchGetBlod(fileUrl)
+    fn_fetchGetBlob(`${API_ENDPOINTS.fileDownload}${fileSeq}`)
         .then(blob => {
             renderPDF(blob);
             // pdf 뷰어
@@ -497,9 +509,7 @@ function getContent(fileSeq) {
         })
         .catch(fn_handleError);
 
-    const msgUrl = '/api/msgs/' + $('#roomSeq').val();
-
-    fn_fetchGetData(msgUrl)
+    fn_fetchGetData(`${API_ENDPOINTS.messages}${$('#roomSeq').val()}`)
         .then(data => {
             if ( data.resultCnt > 0 ) {
 
@@ -554,24 +564,29 @@ function getContent(fileSeq) {
         .catch(fn_handleError);
 }
 
+/**
+ * 채팅방 제목 수정
+ * @param {number} roomSeq - 채팅방 SEQ
+ * @param {string} title - 채팅방 제목
+ * @param {Function} callback - 수정 완료 후 실행할 콜백 함수
+ */
 function updRoom(roomSeq, title, callback) {
-    const url = '/api/room';
 
     const header = {
         'Content-Type': 'application/json',
     };
 
-    let params = {
-        "roomSeq": roomSeq,
-        "title": title
+    const params = {
+        'roomSeq': roomSeq,
+        'title': title
     };
 
-    fn_fetchPatchData(url, JSON.stringify(params), header)
-        .then(data => {
-            if ( !data ) 
-                alert('ERROR');
+    fn_fetchPatchData(API_ENDPOINTS.updateRoom, params, header)
+        .then(isUpdated => {
+            if ( !isUpdated ) 
+                alert('채팅방 제목 수정에 실패했습니다.');
             
-            callback(data);
+            callback(isUpdated);
         })
         .catch(error => {
             fn_handleError(error);
@@ -579,26 +594,31 @@ function updRoom(roomSeq, title, callback) {
         });
 }
 
+/**
+ * 채팅방 삭제
+ * @param {number} roomSeq - 채팅방 SEQ
+ * @param {Function} callback  - 삭제 완료 후 콜백 함수
+ */
 function delRoom(roomSeq, callback) {
 
-    const url = '/api/room/' + roomSeq;
-
-    fn_fetchDeleteData(url)
-        .then(data => {
-            if ( data && roomSeq == $('#roomSeq').val() ) {
-                // pdf 뷰어
-                $('.divMiddle').hide();
-                // chat 
-                $('.divRight').hide();
-                // 초기화
-                $('#sourceId').val('');
-                $('#roomSeq').val('');
+    fn_fetchDeleteData(`${API_ENDPOINTS.deleteRoom}${roomSeq}`)
+        .then(isDeleted  => {
+            if ( isDeleted && roomSeq === parseInt($('#roomSeq').val(), 10) ) {
+                resetChatView();
             }
 
-            callback(data);
+            callback(isDeleted);
         })
         .catch(error => {
             fn_handleError(error);
             callback(false);
         });
+}
+
+// 채팅 UI 초기화
+function resetChatView() {
+    $('.divMiddle').hide();
+    $('.divRight').hide();
+    $('#sourceId').val('');
+    $('#roomSeq').val('');
 }

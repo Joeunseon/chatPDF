@@ -1,83 +1,86 @@
 /**
- * Common js
+ * Common.js - 공통 Fetch 유틸리티
  */
 
-// get Fetch 요청 헤더
-const headers = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-};
+/**
+ * Fetch 요청 공통 처리
+ * @param {string} url - 요청 URL
+ * @param {Object} options - Fetch 옵션
+ * @returns {Promise} - Fetch 결과 Promise
+ */
+function fn_fetchRequest(url, options = {}) {
+    const defaultHeaders = {
+        'Content-Type': 'application/json',
+    };
+
+    // 옵션에 헤더 병합
+    options.headers = { ...defaultHeaders, ...options.headers };
+
+    return fetch(url, options)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Fetch failed: ${response.status} ${response.statusText}`);
+            }
+            return response;
+        })
+        .catch(fn_handleError);
+}
 
 /**
- * 공통 Fetch GET 요청 유틸리티
+ * GET 요청
  * @param {string} url - 요청 URL
- * @returns {Promise} - Fetch 결과 Promise
+ * @returns {Promise} - JSON 데이터를 반환
  */
 function fn_fetchGetData(url) {
-    return fetch(url, headers).then(response => {
-        if (!response.ok) throw new Error('Failed to fetch data');
-        return response.json();
-    });
-}
-
-// Fetch GET blob 요청 유틸리티
-function fn_fetchGetBlod(url) {
-    return fetch(url, headers).then(response => {
-        if (!response.ok) throw new Error('Failed to fetch data');
-        return response.blob();
-    });
+    return fn_fetchRequest(url, { method: 'GET' }).then(response => response.json());
 }
 
 /**
- * 공통 Fetch POST 요청 유틸리티
+ * GET Blob 요청
  * @param {string} url - 요청 URL
- * @param {Oject} formData - 요청 data
- * @returns {Promise} - Fetch 결과 Promise
+ * @returns {Promise} - Blob 데이터를 반환
  */
-function fn_fetchPostData(url, formData) {
-    return fetch(url, {
-        method: 'POST',
-        body: formData
-    }).then(response => {
-        if (!response.ok) throw new Error('Failed to fetch data');
-        return response.json();
-    });
+function fn_fetchGetBlob(url) {
+    return fn_fetchRequest(url, { method: 'GET' }).then(response => response.blob());
 }
 
-function fn_fetchPostData(url, formData, header) {
-    return fetch(url, {
+/**
+ * POST 요청
+ * @param {string} url - 요청 URL
+ * @param {Object} body - 요청 데이터
+ * @param {Object} headers - 추가 헤더 옵션
+ * @returns {Promise} - JSON 데이터를 반환
+ */
+function fn_fetchPostData(url, body, headers = {}) {
+    return fn_fetchRequest(url, {
         method: 'POST',
-        headers: header,
-        body: formData
-    }).then(response => {
-        if (!response.ok) throw new Error('Failed to fetch data');
-        return response.json();
-    });
+        headers,
+        body: body instanceof FormData ? body : JSON.stringify(body),
+    }).then(response => response.json());
 }
 
-function fn_fetchPatchData(url, formData, header) {
-    return fetch(url, {
+/**
+ * PATCH 요청
+ * @param {string} url - 요청 URL
+ * @param {Object} body - 요청 데이터
+ * @param {Object} headers - 추가 헤더 옵션
+ * @returns {Promise} - JSON 데이터를 반환
+ */
+function fn_fetchPatchData(url, body, headers = {}) {
+    return fn_fetchRequest(url, {
         method: 'PATCH',
-        headers: header,
-        body: formData
-    }).then(response => {
-        if (!response.ok) throw new Error('Failed to fetch data');
-        return response.json();
-    });
+        headers,
+        body: JSON.stringify(body),
+    }).then(response => response.json());
 }
 
+/**
+ * DELETE 요청
+ * @param {string} url - 요청 URL
+ * @returns {Promise} - JSON 데이터를 반환
+ */
 function fn_fetchDeleteData(url) {
-    return fetch(url, {
-        method: 'DELETE',
-        headers: {
-        'Content-Type': 'application/json',
-        }
-    }).then(response => {
-        if (!response.ok) throw new Error('Failed to fetch data');
-        return response.json();
-    });
+    return fn_fetchRequest(url, { method: 'DELETE' }).then(response => response.json());
 }
 
 /**
@@ -87,4 +90,5 @@ function fn_fetchDeleteData(url) {
 function fn_handleError(err) {
     console.error('Error occurred:', err.message);
     alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    throw err; // 재처리를 위해 에러를 다시 던짐
 }
