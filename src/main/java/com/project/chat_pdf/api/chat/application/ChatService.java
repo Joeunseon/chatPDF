@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -77,6 +78,7 @@ public class ChatService {
      * @return
      * @throws Exception
      */
+    @Transactional
     public JsonNode sendMessage(ChatMsgCreateDTO createDTO) throws Exception {
 
         String content = "";
@@ -112,6 +114,7 @@ public class ChatService {
      * @param updateDTO
      * @return
      */
+    @Transactional
     public Boolean update(ChatRoomUpdateDTO updateDTO) {
 
         ChatRoom chatRoom = updateDTO.toEntitiy();
@@ -125,6 +128,7 @@ public class ChatService {
      * @param roomSeq
      * @return
      */
+    @Transactional
     public Boolean delete(Long roomSeq) {
 
         Long result = chatRoomMapper.delete(roomSeq);

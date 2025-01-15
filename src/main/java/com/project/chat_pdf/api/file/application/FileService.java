@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -55,11 +56,13 @@ public class FileService {
      * @param file
      * @return
      */
+    @Transactional
     public JsonNode create(MultipartFile file) {
-        
+        FileInfo fileInfo = null;
+
         try {
             // 1. 파일 저장 및 데이터베이스 반영
-            FileInfo fileInfo = saveFileToDatabase(file);
+            fileInfo = saveFileToDatabase(file);
             
             // 2. 임시 파일 생성
             File tempFile = createTempFile(file);
@@ -89,6 +92,10 @@ public class FileService {
             throw new RuntimeException("File processing error", e);
         } catch (Exception e) {
             log.error("[FileService.create]: Unexpected error", e);
+            if ( fileInfo != null && StringUtils.isNotBlank(fileInfo.getStreNm()) && StringUtils.isNoneBlank(fileInfo.getPath()) ) {
+                // 저장 파일 삭제 진행
+                fileUtil.deleteFile(fileInfo.getPath(), fileInfo.getStreNm());
+            }
             throw new RuntimeException("Unexpected error occurred", e);
         }
 
