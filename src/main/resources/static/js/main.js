@@ -33,26 +33,30 @@ $(document).ready(function () {
 
     roomsInit();
 
+    bindEventListeners();
+});
+
+// 이벤트 리스너 바인딩
+function bindEventListeners() {
     // 파일 업로드시
-    $('#inputFile').bind('change', function() {
+    $('#inputFile').on('change', function() {
         uploadFile(this.files);
     });
 
-    // New Chat 클릭시
-    $('.ant-upload-btn').on('click', function () {
+    // 파일 업로드 버튼 클릭시
+    $('.ant-upload-btn').on('click', function() {
         let fileInput = document.getElementById('inputFile');
         fileInput.click();
     });
 
-    // 질문 엔터시
-    $('.ant-input').keypress(function(e) {
+    // 채팅 엔터시
+    $('.ant-input').on('keypress', function(e) {
         if (e.which == 13) {
-          e.preventDefault();
-          askAi();
+            e.preventDefault();
+            askAi();
         }
     });
-
-});
+}
 
 // 파일 설정
 function fileInit() {
@@ -195,68 +199,54 @@ function handleRoomDelete(e, roomClone, roomSeq) {
 
 // 파일 업로드시
 function uploadFile(fileObject) {
-    let files = fileObject;
+    const file = fileObject[0];
+    const fileName = file.name;
+    const fileSize = file.size;
+    const fileExtension = fileName.split('.').pop();
 
-    if ( fileObject != null ) {
-        // 파일 이름 
-        let fileName = fileObject[0].name;
-        let fileNameArr = fileName.split("\.");
-        // 확장자
-        let ext = fileNameArr[fileNameArr.length - 1];
-
-        if ($.inArray(ext, [ 'pdf' ]) == -1) {
-            alert("pdf 파일만 업로드 가능합니다. ("+fileName+")");
-            return;
-        }
-
-        let fileSize = fileObject[0].size;
-        if ( fileSize <= 0 ) {
-            alert('파일크기가 0kb 입니다.');
-            return;
-        }
-
-        if ( fileSize > maxFileSize ) {
-            alert('업로드 가능한 파일의 최대 크기는 ' + maxFileSize + ' 입니다.');
-            return;
-        }
-    
-        // 파일 뷰어 제목 설정
-        $('.divMiddle').find('h1').text(fileName);
-        // 파일 뷰어 페이지 초기화
-        $('#pdfContainer').empty();
-        // 전체 화면 로딩 
-        $('#loadingDiv').show();
-        // 파일 뷰어
-        renderPDF(fileObject[0]);
-        // 파일 업로드
-        fileUpload();
-    } else {
-        alert("ERROR");
+    if ( !['pdf'].includes(fileExtension) ) {
+        alert(`pdf 파일만 업로드 가능합니다. (${fileName})`);
+        return;
     }
+
+    if ( fileSize <= 0 ) {
+        alert('파일크기가 0kb 입니다.');
+        return;
+    }
+
+    if ( fileSize > maxFileSize ) {
+        alert(`업로드 가능한 파일의 최대 크기는 ${maxFileSize} 입니다.`);
+        return;
+    }
+
+    // 파일 뷰어 제목 설정
+    $('.divMiddle').find('h1').text(fileName);
+    // 파일 뷰어 페이지 초기화
+    $('#pdfContainer').empty();
+    // 전체 화면 로딩 
+    $('#loadingDiv').show();
+
+    // 파일 뷰어
+    renderPDF(file);
+    // 파일 업로드
+    fileUpload(file);
 }
 
 // 파일 업로드
-function fileUpload() {
+function fileUpload(file) {
     // id 초기화
 	$('#sourceId').val('');
 
     let formData = new FormData();
-    let fileInput = document.querySelector('input[type="file"]');
-    formData.append('file', fileInput.files[0]);
+    formData.append('file', file);
 
     fn_fetchPostData(API_ENDPOINTS.fileUpload, formData)
         .then(data => {
-            let sourceId = data.sourceId;
-            if ( sourceId != null && sourceId != '' ) {
-                $('#sourceId').val(sourceId);
+            if ( data.sourceId ) {
+                $('#sourceId').val(data.sourceId);
                 $('#roomSeq').val(data.roomSeq);
-                return true;
-            } 
-            return false;
-        })
-        .then ( flag => {
-            if ( flag ) {
-                // 요약과 질문 예시
+                
+                // 초기 질문 생성
                 firstAskAi();
                 // 채팅방 목록 취득
                 roomsInit();
@@ -265,15 +255,11 @@ function fileUpload() {
             }
         })
         .catch(fn_handleError);
-
 }
 
-// 요약과 질문 예시
+// 초기 질문 생성
 function firstAskAi() {
-    // 챗 화면 초기화
-    $('#chatUl').children(':first-child').nextAll().remove();
-    // 질문 입력란 초기화
-    $('.ant-input').val('');
+    restChatUI();
 
     let sourceId = $('#sourceId').val();
     let roomSeq = $('#roomSeq').val();
@@ -296,65 +282,79 @@ function firstAskAi() {
 
 // 답변 취득
 function getAnswer(params, type) {
-
-    const header = {
-        'Content-Type': 'application/json'
-    };
+    const header = {'Content-Type': 'application/json'};
 
     fn_fetchPostData(API_ENDPOINTS.chat, params, header)
-        .then(data => {
-            let answer = data.content;
-
-            if ( answer != null && answer != '' ) {
-                if ( type == 'first' ) {
-                    let strArr = answer.split('\n');
-                    let idx = strArr.length;
-                    $('#chatAi').empty();
-
-                    for (var i = 0; i < strArr.length; i++) {
-                        if ( strArr[i] != '' ) {
-                            if ( strArr[i].includes('예시 질문') || strArr[i].includes('질문 예시') ) {
-                                idx = i;
-                            }
-                            
-                            if ( i > idx && i != 0 ) {
-                                let spanAiClone = elements.spanAiDetach.clone();
-                                spanAiClone.find('.exAsk').text(strArr[i]);
-                                $('#chatAi').append(spanAiClone);
-                            } else if ( i == idx && i != 0 ) {
-                                $('#chatAi').append('<br>'+strArr[i]);
-                            } else {
-                                $('#chatAi').append(strArr[i]+'<br>');
-                            }
-                        }
-
-                        // pdf 뷰어
-			        	$('.divMiddle').show();
-			        	// chat 
-			        	$('.divRight').show();
-                    } 
-                } else if ( type == 'ask' ) {
-			        let divAClone = elements.divADetach.clone();
-			        divAClone.find('.chat-message').html(answer.replace(/(?:\r\n|\r|\n)/g, '<br>'));
-			        $('#chatUl').append(divAClone);
-                }
-
-                // 전체 로딩 hide
-                $('#loadingDiv').hide();
-                // 로딩 삭제
-                $('.divL').remove();
-            }
-        })
+        .then(data => processAnswerResponse(data, type))
         .catch(fn_handleError);
+}
+
+// 답변 처리
+function processAnswerResponse(data, type) {
+    const answer = data.content;
+
+    if ( answer ) {
+        if ( type === 'first' ) {
+            processFirstAnswer(answer);
+        } else if ( type === 'ask' ) {
+            appendAnswerToChat(answer);
+        }
+
+        // 전체 로딩 hide
+        $('#loadingDiv').hide();
+        // 로딩 삭제
+        $('.divL').remove();
+    }
+}
+
+// 초기 질문에 대한 답변 처리
+function processFirstAnswer(answer) {
+    const lines = answer.split('\n');
+    let exampleStartIndex = lines.length;
+    
+    $('#chatAi').empty();
+
+    lines.forEach((line, index) => {
+        if ( line.includes('예시 질문') || line.includes('질문 예시') ) {
+            exampleStartIndex = index;
+        }
+
+        if ( index > exampleStartIndex && index !== 0 ) {
+            if ( line.trim() ) {
+                const spanAiClone = elements.spanAiDetach.clone();
+                spanAiClone.find('.exAsk').text(line);
+                $('#chatAi').append(spanAiClone);
+            }
+        } else if ( index === exampleStartIndex && index !== 0 ) {
+            $('#chatAi').append('<br>' + line);
+        } else {
+            $('#chatAi').append(line + '<br>');
+        }
+    });
+
+    // pdf 뷰어
+    $('.divMiddle').show();
+    // chat 
+    $('.divRight').show();
+}
+
+/**
+ * 일반 질문에 대한 답변 추가
+ * @param {string} answer - ChatPDF 답변
+ */
+function appendAnswerToChat(answer) {
+    const divAClone = elements.divADetach.clone();
+	divAClone.find('.chat-message').html(answer.replace(/(?:\r\n|\r|\n)/g, '<br>'));
+	$('#chatUl').append(divAClone);
 }
 
 // 예시 질문 클릭시
 function exAsk(el) {
-    let content = $(el).closest('.spanAi').find('.exAsk').text().trim();
-    let sourceId = $('#sourceId').val();
-    let roomSeq = $('#roomSeq').val();
+    const content = $(el).closest('.spanAi').find('.exAsk').text().trim();
+    const sourceId = $('#sourceId').val();
+    const roomSeq = $('#roomSeq').val();
     
-    if ( sourceId == '' || content == '' || roomSeq == '' ) {
+    if ( !sourceId || !content || !roomSeq ) {
         alert('처리 중 문제가 발생하였습니다.');
         console.log('Error function : exAsk');
         return;
@@ -368,10 +368,8 @@ function exAsk(el) {
         "content": content
     };
     
-    // 질문 등록
-    let divHClone = elements.divHDetach.clone();
-    divHClone.find('.chat-message').text(content);
-    $('#chatUl').append(divHClone);
+    // 질문을 채팅에 추가
+    appendQuestionToChat(content);
     
     // 로딩 
     chatLoading();
@@ -380,19 +378,29 @@ function exAsk(el) {
     getAnswer(params, 'ask');
 }
 
+/**
+ * 질문을 채팅에 추가
+ * @param {string} content 
+ */
+function appendQuestionToChat(content) {
+    const divHClone = elements.divHDetach.clone();
+    divHClone.find('.chat-message').text(content);
+    $('#chatUl').append(divHClone);
+}
+
 // 사용자 질문
 function askAi() {
-    let sourceId = $('#sourceId').val();
-    let roomSeq = $('#roomSeq').val();
-    let content = $('.ant-input').val().trim();
+    const sourceId = $('#sourceId').val();
+    const roomSeq = $('#roomSeq').val();
+    const content = $('.ant-input').val().trim();
     
-    if ( sourceId == '' || roomSeq == '' ) {
+    if ( !sourceId || !roomSeq ) {
         alert('처리 중 문제가 발생하였습니다.');
         console.log('Error function : askAi');
         return;
     }
     
-    if ( content == '' ) {
+    if ( !content ) {
         alert('질문 내용을 작성해주세요');
         $('.ant-input').val('');
         return;
@@ -408,22 +416,18 @@ function askAi() {
     
     // 질문란 초기화
     $('.ant-input').val('');
-    // 질문 등록
-    let divHClone = elements.divHDetach.clone();
-    divHClone.find('.chat-message').text(content);
-    $('#chatUl').append(divHClone);
+    // 질문을 채팅에 추가
+    appendQuestionToChat(content);
     
     // 로딩 
     chatLoading();
-    
     // ChatPDF 답변 취득
     getAnswer(params, 'ask');
 }
 
 // 챗 로딩
 function chatLoading() {
-    // 로딩 
-    let divLClone = elements.divLDetach.clone();
+    const divLClone = elements.divLDetach.clone();
     $('#chatUl').append(divLClone);
 }
 
@@ -495,11 +499,8 @@ function renderPDF(file) {
 }
 
 function getContent(fileSeq) {
-
     // 초기화
-    $('#chatUl').children(':first-child').nextAll().remove();
-    // 질문 입력란 초기화
-    $('.ant-input').val('');
+    restChatUI();
 
     fn_fetchGetBlob(`${API_ENDPOINTS.fileDownload}${fileSeq}`)
         .then(blob => {
@@ -510,58 +511,44 @@ function getContent(fileSeq) {
         .catch(fn_handleError);
 
     fn_fetchGetData(`${API_ENDPOINTS.messages}${$('#roomSeq').val()}`)
-        .then(data => {
-            if ( data.resultCnt > 0 ) {
-
-                data.resultList.forEach(item => {
-                    let answer = item.content;
-
-                    if ( item.sendType == 'FIRST' ) {
-                        let strArr = answer.split('\n');
-                        let idx = strArr.length;
-                        $('#chatAi').empty();
-    
-                        for (var i = 0; i < strArr.length; i++) {
-                            if ( strArr[i] != '' ) {
-                                if ( strArr[i].includes('예시 질문') || strArr[i].includes('질문 예시') ) {
-                                    idx = i;
-                                }
-                                
-                                if ( i > idx && i != 0 ) {
-                                    let spanAiClone = elements.spanAiDetach.clone();
-                                    spanAiClone.find('.exAsk').text(strArr[i]);
-                                    $('#chatAi').append(spanAiClone);
-                                } else if ( i == idx && i != 0 ) {
-                                    $('#chatAi').append('<br>'+strArr[i]);
-                                } else {
-                                    $('#chatAi').append(strArr[i]+'<br>');
-                                }
-                            }
-                        } 
-                    } else if ( item.sender == 'assistant' ) {
-                        let divAClone = elements.divADetach.clone();
-                        divAClone.find('.chat-message').html(answer.replace(/(?:\r\n|\r|\n)/g, '<br>'));
-                        $('#chatUl').append(divAClone);
-                    } else {
-                        let divHClone = elements.divHDetach.clone();
-                        divHClone.find('.chat-message').html(answer.replace(/(?:\r\n|\r|\n)/g, '<br>'));
-                        $('#chatUl').append(divHClone);
-                    }
-                });
-
-                // chat 
-                $('.divRight').show();
-                // 전체 로딩 hide
-                $('#loadingDiv').hide();
-                // 로딩 삭제
-                $('.divL').remove();
-            } else {
-                // 요약과 질문 예시
-                firstAskAi();
-            }
-
-        })
+        .then(data => processMessageResponse(data))
         .catch(fn_handleError);
+}
+
+// 채팅 UI 초기화
+function restChatUI() {
+    // 초기화
+    $('#chatUl').children(':first-child').nextAll().remove();
+    // 질문 입력란 초기화
+    $('.ant-input').val('');
+}
+
+/**
+ * 메시지 응답처리
+ * @param {Object} data - 채팅 메시지 데이터
+ */
+function processMessageResponse(data) {
+    if ( data.resultCnt > 0 ) {
+        data.resultList.forEach(item => {
+            if ( item.sendType == 'FIRST' ) {
+                $('#chatAi').empty();
+                processFirstAnswer(item.content);
+            } else if ( item.sender == 'assistant' ) {
+                appendAnswerToChat(item.content)
+            } else {
+                appendQuestionToChat(item.content);
+            }
+        });
+
+        // chat 
+        $('.divRight').show();
+        // 전체 로딩 hide
+        $('#loadingDiv').hide();
+        // 로딩 삭제
+        $('.divL').remove();
+    } else {
+        firstAskAi();
+    }
 }
 
 /**
@@ -571,7 +558,6 @@ function getContent(fileSeq) {
  * @param {Function} callback - 수정 완료 후 실행할 콜백 함수
  */
 function updRoom(roomSeq, title, callback) {
-
     const header = {
         'Content-Type': 'application/json',
     };
@@ -600,7 +586,6 @@ function updRoom(roomSeq, title, callback) {
  * @param {Function} callback  - 삭제 완료 후 콜백 함수
  */
 function delRoom(roomSeq, callback) {
-
     fn_fetchDeleteData(`${API_ENDPOINTS.deleteRoom}${roomSeq}`)
         .then(isDeleted  => {
             if ( isDeleted && roomSeq === parseInt($('#roomSeq').val(), 10) ) {
