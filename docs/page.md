@@ -17,7 +17,9 @@
 ![페이지 스크린샷 - 채팅방 접근](images/page_enter_chatroom.png)
 
 <br>
+<br>
 
 ## 🖇️ 프로젝트 문서
-### 🗂️ Main Page
+### 🗂️ Page
+### 🗂️ DATABASE 👉 [바로가기](database_schema.md)
 ### 📑 README 👉 [바로가기](../README.md)
