@@ -100,4 +100,5 @@ COMMENT='채팅메시지';
 ## 🖇️ 프로젝트 문서
 ### 🗂️ Page 👉 [바로가기](page.md)
 ### 🗂️ DATABASE
+### 📑 API 문서 👉 [바로가기](api.md)
 ### 📑 README 👉 [바로가기](../README.md)
