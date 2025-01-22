@@ -32,7 +32,7 @@ PDF 파일을 URL을 통해 ChatPDF로 보낼 수 있습니다.
 
 #### 요청
 `POST` /sources/add-url
-```json
+```javascript
 headers: {
     "x-api-key": "sec_xxxxxx",
     "Content-Type": "application/json"
@@ -44,7 +44,7 @@ body: {
 ```
 
 #### 응답
-```json
+```javascript
 { 
     "sourceId": "src_xxxxxx" 
 }
@@ -57,7 +57,7 @@ body: {
 
 #### 요청
 `POST` /sources/add-file
-```json
+```javascript
 headers: {
     "x-api-key": "sec_xxxxxx"
 }
@@ -68,7 +68,7 @@ body: {
 ```
 
 #### 응답
-```json
+```javascript
 { 
     "sourceId": "src_xxxxxx" 
 }
@@ -84,7 +84,7 @@ body: {
 |엔드포인트  | `POST` /chats/message |
 |-----------|-----------------------|
 
-```json
+```javascript
 headers: {
     "x-api-key": "sec_xxxxxx",
     "Content-Type": "application/json"
@@ -95,7 +95,7 @@ headers: {
 
 #### 4.3.1 일반 메시지 전송
 #### 요청
-```json
+```javascript
 {
   "sourceId": "src_xxxxxx",
   "messages": [
@@ -108,7 +108,7 @@ headers: {
 ```
 
 #### 응답
-```json
+```javascript
 { 
     "content": "응답 메시지" 
 }
@@ -118,7 +118,7 @@ headers: {
 
 #### 4.3.2 연관 질문 전송
 #### 요청
-```json
+```javascript
 {
   "sourceId": "src_xxxxxx",
   "messages": [
@@ -140,7 +140,7 @@ headers: {
 한 번의 요청으로 최대 6개의 메시지를 포함 할 수 있습니다.
 
 #### 응답
-```json
+```javascript
 { 
     "content": "응답 메시지" 
 }
@@ -150,7 +150,7 @@ headers: {
 
 #### 4.3.3 참조 포함하여 응답 메시지 받기
 #### 요청
-```json
+```javascript
 {
   "referenceSources": true,
   "sourceId": "src_xxxxxx",
@@ -164,7 +164,7 @@ headers: {
 ```
 
 #### 응답
-```json
+```javascript
 {
   "content": "응답 메시지 [P2] [P5]",
   "references": [
@@ -182,7 +182,7 @@ sourceId를 사용하여 ChatPDF에서 하나 이상의 PDF 파일을 삭제할 
 
 #### 요청
 `POST` /sources/delete
-```json
+```javascript
 headers: {
     "x-api-key": "sec_xxxxxx",
     "Content-Type": "application/json"
@@ -192,7 +192,7 @@ body: { "sources": ["src_xxxxxx"] }
 ```
 
 #### 응답
-```json
+```javascript
 This endpoint returns an empty response.
 ```
 
@@ -200,7 +200,7 @@ This endpoint returns an empty response.
 <br>
 
 ## 🖇️ 프로젝트 문서
-### 🗂️ Page 👉 [바로가기](docs/page.md)
-### 🗂️ DATABASE 👉 [바로가기](docs/database.md)
+### 🗂️ Page 👉 [바로가기](page.md)
+### 🗂️ DATABASE 👉 [바로가기](database.md)
 ### 📑 API 문서
 ### 📑 README 👉 [바로가기](../README.md)
