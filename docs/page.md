@@ -22,4 +22,5 @@
 ## 🖇️ 프로젝트 문서
 ### 🗂️ Page
 ### 🗂️ DATABASE 👉 [바로가기](database_schema.md)
+### 📑 API 문서 👉 [바로가기](api.md)
 ### 📑 README 👉 [바로가기](../README.md)
