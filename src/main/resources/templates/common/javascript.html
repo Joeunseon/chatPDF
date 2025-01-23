@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+    <th:block th:fragment="common">
+        <!-- 각 페이지에 추가되는 script -->
+        <script type="text/javascript" th:inline="javascript" th:src="@{${jsName}}"></script>
+    </th:block>
+</html>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.chat_pdf.api.chat.infrastructure.ChatMsgMapper">
+
+    <select id="countAll" resultType="Integer">
+        /* ChatMsg.countAll */
+        SELECT COUNT(msg_seq)
+        FROM chat_msg
+        WHERE room_seq = #{roomSeq}
+    </select>
+
+    <select id="findAll" resultType="ChatMsgDTO">
+        /* ChatMsg.findAll */
+        SELECT sender
+               , send_type
+               , content
+               , sequence
+        FROM chat_msg
+        WHERE room_seq = #{roomSeq}
+        ORDER BY sequence ASC
+    </select>
+
+    <select id="findNextOrder" resultType="Integer">
+        /* ChatMsg.findNextOrder */
+        SELECT COALESCE(MAX(sequence), 0) + 1
+        FROM chat_msg
+        WHERE room_seq = #{roomSeq}
+    </select>
+
+    <insert id="create">
+        /* ChatMsg.create */
+        INSERT
+        INTO chat_msg
+            (
+                room_seq,
+                send_type,
+                sender,
+                content,
+                sequence
+            )
+        VALUES
+            (
+                #{roomSeq},
+                #{sendType},
+                #{sender},
+                #{content},
+                #{sequence}
+            )
+    </insert>
+
+
+</mapper>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.chat_pdf.api.chat.infrastructure.ChatRoomMapper">
+
+    <select id="countAll" resultType="Integer">
+        /* ChatRoom.countAll */
+        SELECT COUNT(room_seq)
+        FROM chat_room
+        WHERE del_yn = 'N'
+    </select>
+
+    <select id="findAll" resultType="ChatRoomDTO">
+        /* ChatRoom.findAll */
+        SELECT room_seq
+               , file_seq
+               , api_id
+               , title
+               , upd_dt
+        FROM chat_room cr
+        WHERE del_yn = 'N'
+        ORDER BY GREATEST(upd_dt, 
+                  (SELECT MAX(reg_dt) FROM chat_msg cm WHERE cm.room_seq = cr.room_seq)) DESC
+    </select>
+
+    <insert id="create" keyProperty="roomSeq" useGeneratedKeys="true">
+        /* ChatRoom.create */
+        INSERT
+        INTO chat_room
+            (
+                file_seq,
+                api_id,
+                title,
+                del_yn
+            )
+        VALUES
+            (
+                #{fileSeq},
+                #{apiId},
+                #{title},
+                #{delYn}
+            )
+    </insert>
+
+    <update id="update">
+        /* ChatRoom.update */
+        UPDATE chat_room
+        SET title = #{title}
+            , upd_dt = now()
+        WHERE room_seq = #{roomSeq}
+    </update>
+
+    <update id="delete">
+        /* ChatRoom.delete */
+        UPDATE chat_room
+        SET del_yn = 'Y'
+            , upd_dt = now()
+        WHERE room_seq = #{roomSeq}
+    </update>
+</mapper>

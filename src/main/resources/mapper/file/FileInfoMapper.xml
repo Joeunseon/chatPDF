@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.chat_pdf.api.file.infrastructure.FileInfoMapper">
+
+    <select id="findById" resultType="FileDTO">
+        /* FileInfo.findById */
+        SELECT stre_nm
+               , ori_nm
+               , path
+        FROM file_info
+        WHERE file_seq = #{fileSeq}
+    </select>
+
+    <insert id="create" keyProperty="fileSeq" useGeneratedKeys="true">
+        /* FileInfo.create */
+        INSERT 
+        INTO file_info
+            (
+                stre_nm,
+                ori_nm,
+                path,
+                extsn,
+                size
+            )
+        VALUES 
+            (
+                #{streNm},
+                #{oriNm},
+                #{path},
+                #{extsn},
+                #{size}
+            )
+    </insert>
+
+</mapper>
